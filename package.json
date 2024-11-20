@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "react": "^18.3.1",
@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
+    "@types/css-modules": "^1.0.5",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.3",
@@ -30,5 +31,5 @@
     "typescript-eslint": "^8.11.0",
     "vite": "^5.4.10"
   },
-  "homepage":"https://Atr1ck.github.io"
+  "homepage": "https://Atr1ck.github.io"
 }
