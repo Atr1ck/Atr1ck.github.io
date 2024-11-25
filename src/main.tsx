@@ -4,6 +4,7 @@ import './index.css'
 import Home from './Home.tsx'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import { ArticleContent, ArticleList } from './Article.tsx'
+import MusicPlayer from './Musicplayer.tsx'
 
 const router = createBrowserRouter([
   {
@@ -15,13 +16,17 @@ const router = createBrowserRouter([
         element: <Navigate to="/articleList" replace />,
       },
       {
-        path: "articles/:name",
+        path: "articles/:title",
         element: <ArticleContent />,
       },
       {
         path: "articleList",
         element: <ArticleList />,
-      }
+      },
+      {
+        path: "music",
+        element: <MusicPlayer />
+      },
     ]
   }
 ])

@@ -5,12 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && cp -r ./src/articles ./dist/articles",
+    "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.61.3",
+    "@types/react-scroll": "^1.8.10",
+    "buffer": "^6.0.3",
     "gray-matter": "^4.0.3",
     "highlight.js": "^11.10.0",
     "localforage": "^1.10.0",
@@ -20,6 +23,7 @@
     "react-dom": "^18.3.1",
     "react-markdown": "^9.0.1",
     "react-router-dom": "^6.28.0",
+    "react-scroll": "^1.9.0",
     "rehype-highlight": "^7.0.1",
     "remark-gfm": "^4.0.0",
     "sort-by": "^0.0.2"

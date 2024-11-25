@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { Outlet } from "react-router-dom"
 
 function TopNavi() {
@@ -34,9 +35,11 @@ export default function Home() {
   return (
     <div className="flex flex-col h-screen">
       <TopNavi></TopNavi>
-      <div className="flex flex-grow flex-row mx-24">
+      <div className="flex flex-grow flex-row mx-24 ">
         <Information></Information>
+        <QueryClientProvider client={new QueryClient} >
         <Outlet />
+        </QueryClientProvider>
       </div>
     </div>
   )
