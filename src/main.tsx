@@ -3,8 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import Home from './Home.tsx'
 import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
-import { ArticleContent, ArticleList } from './Article.tsx'
-import MusicPlayer from './Musicplayer.tsx'
+import { ArticleContent, ArticleList } from './components/Article.tsx'
 
 const router = createBrowserRouter([
   {
@@ -22,10 +21,6 @@ const router = createBrowserRouter([
       {
         path: "articleList",
         element: <ArticleList />,
-      },
-      {
-        path: "music",
-        element: <MusicPlayer />
       },
     ]
   }

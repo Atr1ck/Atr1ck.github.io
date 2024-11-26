@@ -11,8 +11,12 @@ export default function MusicPlayer(){
   const [currentTime, setCurrentTime] = useState(0);
   const [activeLyricIndex, setActiveLyricIndex] = useState(0);
   const [lyrics, setLyrics] = useState<LyricLine[]>([]);
+  const [musicId, setMusicId] = useState(0);
+  const [totalMusic, setTotalMusic] = useState(0);
+  const [title, setTitle] = useState("春泥棒");
+  const [author, setAuthor] = useState("ヨルシカ");
   const audioRef = useRef<HTMLAudioElement>(null);
-  
+
   const togglePlay = () => {
     if (!audioRef.current) return;
     if (isPlaying) {
@@ -25,14 +29,25 @@ export default function MusicPlayer(){
 
   // 加载歌词
   useEffect(() => {
-    fetch('/lyrics/太陽-ヨルシカ.lrc')
+    fetch(`/json/music.json`)
+      .then((res) => res.json())
+      .then((data) => {
+        setTitle(data["title"][musicId]);
+        setAuthor(data["author"][musicId]);
+        setTotalMusic(data["title"].length);
+      });
+  }, [musicId]);
+
+  useEffect(() => {
+    if (title && author) {
+      fetch(`/lyrics/${title}-${author}.lrc`)
       .then((res) => res.text())
       .then((data) => {
         const parsedLyrics = parseLRC(data);
         setLyrics(parsedLyrics);
-      });
-  }, []);
-
+      })
+    }
+  },[title, author])
   // 更新当前时间
   useEffect(() => {
     const audio = audioRef.current;
@@ -53,7 +68,6 @@ export default function MusicPlayer(){
         (index === lyrics.length - 1 || currentTime < lyrics[index + 1].time)
     );
 
-    console.log("Active Lyric:", activeLyric, "Current Time:", currentTime);
     // 确保找到有效的歌词索引
     if (activeLyric !== -1) {
       setActiveLyricIndex(activeLyric);
@@ -62,17 +76,31 @@ export default function MusicPlayer(){
       scroller.scrollTo(`lyric-${activeLyric}`, {
         duration: 500,
         smooth: true,
-        offset: -100, // 调整位置偏移
+        offset: -75, // 调整位置偏移
         containerId: "lyrics-container",
       });
     }
   }, [currentTime, lyrics]);
 
+  const handleProgressChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const audio = audioRef.current;
+    if (audio) {
+      const value = Number(event.target.value);
+      audio.currentTime = value; // 跳转到新的时间
+    }
+  };
+
+  const handleEnded = () => {
+    setMusicId((prevId) => (prevId + 1) % totalMusic); // 使用函数式更新避免异步问题
+  };
+
+  
+
   return (
     <div className="flex-grow flex justify-center mt-6 relative">
-      <div className="absolute bg-cover blur-sm -z-10 bg-[url('/images/yorushika.png')] bg-center w-2/3 h-2/3"></div>
-      <div className="flex flex-col items-center justify-center p-6 bg-gray-100 rounded-lg shadow-md w-2/3 h-2/3 gap-y-8 bg-opacity-40">
-        <audio ref={audioRef} src="/music/太陽-ヨルシカ.mp3" preload="metadata" />
+      <div className="absolute bg-cover blur-sm -z-10 bg-[url('/images/yorushika.png')] bg-center w-80 h-96"></div>
+      <div className="flex flex-col items-center justify-center p-6 bg-gray-100 rounded-lg shadow-md w-80 h-96 gap-y-8 bg-opacity-40">
+        <audio ref={audioRef} src={`/music/${title}-${author}.mp3`} preload="metadata" autoPlay={true} onEnded={handleEnded}/>
         <div className="flex flex-col overflow-y-hidden h-64 " id="lyrics-container">
           {lyrics.map((lyric, index) => (
             <Element
@@ -86,15 +114,16 @@ export default function MusicPlayer(){
             </Element>
           ))}
         </div>
-        <div className="flex justify-between w-3/5 text-sm text-gray-600">
-          <span className="font-bold text-lg">
+        <div className="flex w-full  text-sm text-gray-600">
+          <div className="font-bold text-lg">
             {String(Math.floor(currentTime / 60)).padStart(2, "0")}:
             {String(Math.floor(currentTime) - Math.floor(currentTime / 60) * 60).padStart(2, "0")}
-          </span>
-          <span className="font-bold text-lg">
+          </div>
+          <input type="range" value={currentTime} min="0" max={audioRef.current?.duration} step="0.1" onChange={handleProgressChange} className="w-3/5 mx-2"/>
+          <div className="font-bold text-lg">
             {String(Math.floor(audioRef.current?.duration as number / 60 || 0)).padStart(2, "0")}:
             {String(Math.floor(audioRef.current?.duration as number) - Math.floor(audioRef.current?.duration as number / 60) * 60 || 0).padStart(2, "0")}
-          </span>
+          </div>
         </div>
         <button
           onClick={togglePlay}
