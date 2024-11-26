@@ -1,11 +1,13 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { Outlet } from "react-router-dom"
+import { Outlet, useNavigate } from "react-router-dom"
 
 function TopNavi() {
+  const navigate = useNavigate();
+
   return (
       <div className="flex flex-row h-12 w-full rounded-lg bg-slate-50 shadow-md py-3 px-4 justify-around">
           <div>
-              11
+              <button className="hover:bg-slate-200 px-2 py-1 transition-all duration-300 rounded-md" onClick={() => navigate('/music')}>Music</button>
           </div>
           <div>
               22
