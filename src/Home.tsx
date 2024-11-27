@@ -1,14 +1,18 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { Outlet, useNavigate } from "react-router-dom"
 import MusicPlayer from "./components/Musicplayer";
+import { GithubOutlined } from "@ant-design/icons";
 
 function TopNavi() {
   const navigate = useNavigate();
 
   return (
-      <div className="flex flex-row h-12 w-full rounded-lg bg-slate-50 shadow-md py-3 px-4 justify-around">
+      <div className="flex flex-row h-12 w-full rounded-lg text-white bg-black bg-opacity-60 shadow-md py-3 px-4 items-center justify-around">
+          <a className="absolute right-6" href="https://github.com/Atr1ck" target="_blank">
+          <GithubOutlined className="text-2xl"/>
+          </a>
           <div>
-              <button className="hover:bg-slate-200 px-2 py-1 transition-all duration-300 rounded-md" onClick={() => navigate('/')}>首页</button>
+              <button className="hover:bg-slate-600 px-2 py-1 transition-all duration-300 rounded-md" onClick={() => navigate('/')}>首页</button>
           </div>
           <div>
               22
@@ -20,19 +24,6 @@ function TopNavi() {
   )
 }
 
-function Information(){
-  return (
-  <div>
-    <div className="mt-6 w-48 shadow-md rounded-lg">
-      <img className="w-48 h-48 rounded-t-lg" src="/images/avatar.jpg" alt="image" />
-      <a className="w-48 h-10 p-1 flex justify-center items-center bg-gray-100 border-b hover:bg-gray-200 transition-all duration-300" href="https://github.com/Atr1ck" target="_blank">Bilibili</a>
-      <a className="w-48 h-10 p-1 flex justify-center items-center bg-gray-100 hover:bg-gray-200 transition-all duration-300" href="https://github.com/Atr1ck" target="_blank">Github</a>
-    </div>
-  </div>
-  )
-}
-
-
 
 export default function Home() {
   return (
@@ -40,7 +31,6 @@ export default function Home() {
       <TopNavi></TopNavi>
       <div className="flex flex-grow flex-row mx-24 ">
         <div className="flex flex-col items-center">
-        <Information></Information>
         <MusicPlayer></MusicPlayer>
         </div>
         <QueryClientProvider client={new QueryClient} >

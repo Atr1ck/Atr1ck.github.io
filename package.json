@@ -5,12 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "./.venv/bin/python3.12 beforedeploy/article.py && tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@ant-design/icons": "^5.5.1",
     "@tanstack/react-query": "^5.61.3",
     "@types/react-scroll": "^1.8.10",
     "buffer": "^6.0.3",

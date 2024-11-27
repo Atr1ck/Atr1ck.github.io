@@ -1,3 +1,4 @@
+import { DownOutlined, PauseCircleOutlined, PlayCircleOutlined, StepBackwardOutlined, StepForwardOutlined, UnorderedListOutlined, UpOutlined } from "@ant-design/icons";
 import { useEffect, useRef, useState } from "react";
 import { Element, scroller } from "react-scroll";
 
@@ -15,6 +16,10 @@ export default function MusicPlayer(){
   const [totalMusic, setTotalMusic] = useState(0);
   const [title, setTitle] = useState("春泥棒");
   const [author, setAuthor] = useState("ヨルシカ");
+  const [songList, setSongList] = useState([{"title": "春泥棒", "author": "ヨルシカ"}]);
+  const [listShow, setListShow] = useState(false);
+  const [folded, setFolded] = useState(true);
+
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const togglePlay = () => {
@@ -35,7 +40,14 @@ export default function MusicPlayer(){
         setTitle(data["title"][musicId]);
         setAuthor(data["author"][musicId]);
         setTotalMusic(data["title"].length);
-      });
+        const songs = data["title"].map((title: string, index: number) => ({
+          "title": title,
+          "author": data["author"][index]
+        }));
+
+        setSongList(songs);
+        }
+      );
   }, [musicId]);
 
   useEffect(() => {
@@ -74,7 +86,7 @@ export default function MusicPlayer(){
 
       // 使用 react-scroll 滚动到对应歌词位置
       scroller.scrollTo(`lyric-${activeLyric}`, {
-        duration: 500,
+        duration: 300,
         smooth: true,
         offset: -75, // 调整位置偏移
         containerId: "lyrics-container",
@@ -92,46 +104,92 @@ export default function MusicPlayer(){
 
   const handleEnded = () => {
     setMusicId((prevId) => (prevId + 1) % totalMusic); // 使用函数式更新避免异步问题
+    togglePlay();
   };
 
   
 
   return (
-    <div className="flex-grow flex justify-center mt-6 relative">
-      <div className="absolute bg-cover blur-sm -z-10 bg-[url('/images/yorushika.png')] bg-center w-80 h-96"></div>
-      <div className="flex flex-col items-center justify-center p-6 bg-gray-100 rounded-lg shadow-md w-80 h-96 gap-y-8 bg-opacity-40">
-        <audio ref={audioRef} src={`/music/${title}-${author}.mp3`} preload="metadata" autoPlay={true} onEnded={handleEnded}/>
-        <div className="flex flex-col overflow-y-hidden h-64 " id="lyrics-container">
+    <div className="flex-grow flex justify-center mt-6 relative overflow-hidden max-h-screen">
+      <div className={`absolute bg-cover -z-20 bg-[url('/images/yorushika.png')] bg-center w-80 overflow-hidden transition-all duration-300 rounded-lg 
+        ${folded ? "h-28" : "h-3/5"}` }></div>
+      <div className={`absolute inset-0 bg-black bg-opacity-45 backdrop-blur-sm w-80 -z-10 rounded-lg transition-all duration-300 ${folded ? "h-28" : "h-3/5"}`}></div>
+      <div className={`flex flex-col items-center justify-center p-6 bg-gray-100 rounded-lg shadow-md w-80 gap-y-8 transition-all duration-300 bg-opacity-40 relative ${folded ? "h-28" : "h-3/5"}`}>
+        <audio ref={audioRef} src={`/music/${title}-${author}.mp3`} preload="metadata" onEnded={handleEnded}/>
+        
+        <div className={`flex items-center transition-all duration-300 ${folded ? "flex-row gap-x-1 absolute top-1 left-3" : "flex-col gap-y-1 "}`}>
+          <p className="font-bold text-xl text-white">{title}</p>
+          <p className=" text-white">{author}</p>
+        </div>
+
+        {folded ? (
+          <p className="text-white font-bold text-center absolute">{activeLyricIndex ? lyrics[activeLyricIndex].text : ""}</p>
+        ) : (
+          <div className="flex flex-col overflow-y-hidden h-64 " id="lyrics-container">
           {lyrics.map((lyric, index) => (
             <Element
               key={index}
               name={`lyric-${index}`}
               className={`p-2 ${
-                index === activeLyricIndex ? "text-red-400 font-bold text-xl duration-75 transition-all text-center" : "text-gray-500 duration-75 transition-all text-center"
+                index === activeLyricIndex ? "text-white font-bold text-xl duration-75 transition-all text-center" : "text-gray-200 duration-75 transition-all text-center"
               }`}
             >
               {lyric.text}
             </Element>
           ))}
         </div>
-        <div className="flex w-full  text-sm text-gray-600">
+        )}
+
+        <div className={`flex w-full text-sm text-black ${folded ? "absolute left-2 bottom-0" : "justify-center"}`}>
           <div className="font-bold text-lg">
             {String(Math.floor(currentTime / 60)).padStart(2, "0")}:
             {String(Math.floor(currentTime) - Math.floor(currentTime / 60) * 60).padStart(2, "0")}
           </div>
-          <input type="range" value={currentTime} min="0" max={audioRef.current?.duration} step="0.1" onChange={handleProgressChange} className="w-3/5 mx-2"/>
+          <input type="range" value={currentTime} min="0" max={audioRef.current?.duration || 0} step="0.1" onChange={handleProgressChange} className={`mx-2 transition-all duration-300 ${folded ? "w-2/6" : "w-3/5"}`}/>
           <div className="font-bold text-lg">
             {String(Math.floor(audioRef.current?.duration as number / 60 || 0)).padStart(2, "0")}:
             {String(Math.floor(audioRef.current?.duration as number) - Math.floor(audioRef.current?.duration as number / 60) * 60 || 0).padStart(2, "0")}
           </div>
         </div>
-        <button
-          onClick={togglePlay}
-          className="px-4 py-2 mb-4 text-white bg-gray-400 rounded hover:bg-gray-500"
-        >
-          {isPlaying ? "暂停" : "播放"}
-        </button>
 
+        <div className={`flex gap-x-1 ${folded ? "absolute right-2 bottom-1" : ""}`}>
+        <StepBackwardOutlined className={`transition-all duration-300 ${folded ? "text-2xl" : "text-4xl"}`} onClick={() => { 
+          setMusicId((prevId) => prevId - 1 < 0 ? totalMusic - 1 : prevId - 1);
+          setIsPlaying(false);
+          }}/>
+        {isPlaying ? <PauseCircleOutlined className={`transition-all duration-300 ${folded ? "text-2xl" : "text-4xl"}`} onClick={togglePlay}/> : 
+        <PlayCircleOutlined className={`transition-all duration-300 ${folded ? "text-2xl" : "text-4xl"}`} onClick={togglePlay}/>}
+        <StepForwardOutlined className={`transition-all duration-300 ${folded ? "text-2xl" : "text-4xl"}`} onClick={() => {
+          setMusicId((prevId) => (prevId + 1) % totalMusic);
+          setIsPlaying(false);
+          }}/>
+        </div>
+
+        {folded ? <UpOutlined className="text-xl absolute top-2 right-3 " onClick={() => setFolded(false)}/> : <DownOutlined className="text-xl absolute top-2 right-3" onClick={() => setFolded(true)}/>}
+        <UnorderedListOutlined className="text-xl absolute top-2 right-10 z-20" onClick={() => setListShow(!listShow)}/>
+        <div
+          className={`absolute top-0 right-0 w-80 h-full bg-gray-800 text-white p-4 overflow-y-auto transition-all duration-300 origin-right rounded-md ${
+            listShow ? "opacity-100" : "scale-x-0 opacity-0"
+          }`}
+        >
+        <h2 className="text-xl font-bold mb-4">歌曲列表</h2>
+        <ul>
+          {songList.map((song, index) => (
+            <li
+              key={index}
+              className={`p-2 rounded cursor-pointer ${
+                index === musicId ? "bg-gray-700" : "hover:bg-gray-600"
+              }`}
+              onClick={() => {
+                setMusicId(index);
+                setIsPlaying(false); // 停止当前播放
+              }}
+            >
+              {song.title} - {song.author}
+            </li>
+          ))}
+        </ul>
+      </div>
       </div>
       </div>
   );
