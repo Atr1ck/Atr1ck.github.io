@@ -30,11 +30,11 @@ export function ArticleList(){
   return (
       <div className="flex flex-grow flex-col items-center">
             {Object.entries(data || {}).map(([title, article], index) => (
-              <div className="flex flex-row p-5 w-3/5 h-60 my-6 rounded-lg shadow-md bg-gray-950 hover:bg-gray-800 hover:w-4/5 hover:h-72 transition-all duration-300 opacity-80" key={index} onClick={() => navigate(`/articles/${title}`)} >
-              <p className="w-4/5 border-r-2  text-white text-3xl font-light">{title}</p>
+              <div className="flex flex-row p-5 w-4/6 h-60 my-6 rounded-lg shadow-md bg-gray-950 hover:bg-gray-800 hover:w-4/5 hover:h-72 transition-all duration-300 opacity-80" key={index} onClick={() => navigate(`/articles/${title}`)} >
+              <p className="w-9/12 border-r-2  text-white text-3xl font-light">{title}</p>
               <div className="flex flex-col pl-4">
                 {article.tags.map((tag : string, index: number) => (
-                <p className="text-white text-lg font-mono" key={index}># {tag}</p>
+                <p className="text-white text-md font-mono" key={index}># {tag}</p>
               ))}
               </div>
               </div>
@@ -60,8 +60,8 @@ export function ArticleContent(){
 
   console.log(data);
   return (
-    <div className="flex-grow mx-24 my-8 border-2 p-8 border-slate-300 rounded-lg bg-slate-50 ">
-      <div className="prose">
+    <div className="flex-grow mx-24 my-8 border-2 border-slate-800 p-8 bg-slate-800 rounded-lg opacity-95">
+      <div className="prose prose-headings:text-white prose-pre:bg-slate-900  text-white">
       <Markdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>{data[title || ""]["content"]}</Markdown>
       </div>
     </div>
