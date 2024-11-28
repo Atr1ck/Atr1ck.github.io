@@ -1,15 +1,30 @@
 ---
-title: Article2
+title: 个人Blog绝赞手搓中
 date: 2024-11-25
 tags:
-  - example
-  - markdown
+  - updatelog
 ---
 
-## This is the content of article 2.
+# 前言
 
-~~1~~
+前几天心血来潮就猛猛重构了之前用hexo框架一键生成的Blog，尽管还有很多功能需要制作，但目前来说我自己已经挺满意了。
 
-```python
-print(12345)
-```
+但是还欠了好多作业啊😭，要去补作业了
+
+# 已有功能
+
+- 播放器
+- 文章显示
+
+# To do List
+
+- 照片墙 ⭐⭐⭐⭐⭐
+- 优化播放器代码 ⭐⭐⭐
+- 将其他react项目融合进来 ⭐⭐⭐
+- 其他端设备界面适配 ⭐⭐
+
+# 更新日志
+
+## 1.0.0
+
+- 初步完成，暂时告一段落
