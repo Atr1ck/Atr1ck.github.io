@@ -28,7 +28,7 @@ export function ArticleList(){
   }
 
   return (
-      <div className="flex flex-grow flex-col items-center">
+      <div className="flex w-3/4 flex-col items-center">
             {Object.entries(data || {}).map(([title, article], index) => (
               <div className="flex flex-row p-5 w-4/6 h-60 my-6 rounded-lg shadow-md bg-gray-950 hover:bg-gray-800 hover:w-4/5 hover:h-72 transition-all duration-300 opacity-80" key={index} onClick={() => navigate(`/articles/${title}`)} >
               <p className="w-9/12 border-r-2  text-white text-3xl font-light">{title}</p>

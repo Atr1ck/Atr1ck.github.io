@@ -15,7 +15,7 @@ function TopNavi() {
               <button className="hover:bg-slate-600 px-2 py-1 transition-all duration-300 rounded-md" onClick={() => navigate('/')}>首页</button>
           </div>
           <div>
-              22
+              <button className="hover:bg-slate-600 px-2 py-1 transition-all duration-300 rounded-md" onClick={() => navigate('/pictures')}>照片墙</button>
           </div>
           <div>
               33

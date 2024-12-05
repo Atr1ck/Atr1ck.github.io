@@ -4,6 +4,7 @@ import './index.css'
 import Home from './Home.tsx'
 import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom'
 import { ArticleContent, ArticleList } from './components/Article.tsx'
+import Imageshow from './components/Picture.tsx'
 
 const router = createHashRouter([
   {
@@ -22,6 +23,10 @@ const router = createHashRouter([
         path: "articleList",
         element: <ArticleList />,
       },
+      {
+        path: "pictures",
+        element: <Imageshow />,
+      }
     ]
   }
 ])
