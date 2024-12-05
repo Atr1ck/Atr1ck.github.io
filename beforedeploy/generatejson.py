@@ -67,8 +67,8 @@ def pictures_json():
         data = {}
 
         for picture in pictures:
-            convert_to_webp("public/pictures/" + picture.name , "public/pictures/" + picture.name.split('.')[0] + '.webp')
-            tags = ["test"]
+            convert_to_webp("public/pictures/" + picture.name , "public/pictures/" + picture.stem + '.webp')
+            tags = picture.stem.split()[1:]
             data[picture.name] = tags
         
 

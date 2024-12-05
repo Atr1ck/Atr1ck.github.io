@@ -14,12 +14,13 @@ function Picturecard({ imgname, tags }: { imgname: string, tags: string[] }) {
                 alt={imgname}
                 onClick={toggleModal}
             />
+            <div className="flex">
             {tags.map((tag, index) => (
-                <p key={index} className="text-white m-2 hover:text-blue-400">
+                <p key={index} className="text-white my-2 ml-2 hover:text-blue-400">
                     #{tag}
                 </p>
             ))}
-
+            </div>
             {/* Modal */}
             {isModalOpen && (
                 <div
