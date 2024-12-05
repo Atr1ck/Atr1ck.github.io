@@ -59,7 +59,10 @@ def pictures_json():
     try:
         PICTURES_OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
 
-        pictures = [images for images in PICTURES_FOLDER.glob("*")]
+        pictures = [
+            image for image in PICTURES_FOLDER.glob("*")
+            if image.suffix.lower() not in {".webp"}
+        ]
         
         data = {}
 
