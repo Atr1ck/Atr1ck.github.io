@@ -61,7 +61,7 @@ export function ArticleContent(){
 
   console.log(data);
   return (
-    <div className="flex-grow mx-24 my-8 border-2 border-slate-800 p-8 bg-slate-800 rounded-lg opacity-95">
+    <div className="grow mx-24 my-8 border-2 border-slate-800 p-8 bg-slate-800 rounded-lg opacity-95">
       <div className="prose prose-headings:text-white prose-pre:bg-slate-900  text-white">
       <Markdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>{data[title || ""]["content"]}</Markdown>
       </div>

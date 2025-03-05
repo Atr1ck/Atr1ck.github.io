@@ -36,7 +36,7 @@ function Picturecard({ imgname, tags }: { imgname: string, tags: string[] }) {
                         <a
                             href={`/pictures/${imgname}`}
                             download={imgname}
-                            className="block mt-4 text-center bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+                            className="block mt-4 text-center bg-blue-500 text-white py-2 px-4 rounded-sm hover:bg-blue-600"
                             onClick={(e) => e.stopPropagation()}
                         >
                             下载图片

@@ -108,13 +108,12 @@ export default function MusicPlayer(){
   };
 
   
-
   return (
-    <div className="flex-grow flex justify-center mt-6 relative overflow-hidden max-h-screen w-full">
+    <div className="grow flex justify-center mt-6 relative overflow-hidden max-h-screen w-full">
       <div className={`absolute bg-cover -z-20 bg-[url('/images/yorushika.png')] bg-center w-full overflow-hidden transition-all duration-300 rounded-lg 
         ${folded ? "h-28" : "h-3/5"}` }></div>
-      <div className={`absolute inset-0 bg-black bg-opacity-45 backdrop-blur-sm w-full -z-10 rounded-lg transition-all duration-300 ${folded ? "h-28" : "h-3/5"}`}></div>
-      <div className={`flex flex-col items-center justify-center p-6 bg-gray-100 rounded-lg shadow-md w-full gap-y-8 transition-all duration-300 bg-opacity-40 relative ${folded ? "h-28" : "h-3/5"}`}>
+      <div className={`absolute inset-0 bg-black bg-black/40 backdrop-blur-sm w-full -z-10 rounded-lg transition-all duration-300 ${folded ? "h-28" : "h-3/5"}`}></div>
+      <div className={`flex flex-col items-center justify-center p-6 bg-gray-100/40 rounded-lg shadow-md w-full gap-y-8 transition-all duration-300 relative ${folded ? "h-28" : "h-3/5"}`}>
         <audio ref={audioRef} src={`/music/${title}-${author}.mp3`} preload="metadata" onEnded={handleEnded}/>
         
         <div className={`flex items-center transition-all duration-300 ${folded ? "flex-row gap-x-1 absolute top-1 left-3" : "flex-col gap-y-1 "}`}>

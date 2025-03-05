@@ -7,7 +7,7 @@ function TopNavi() {
   const navigate = useNavigate();
 
   return (
-      <div className="flex flex-row h-12 w-full rounded-lg text-white bg-black bg-opacity-60 shadow-md py-3 px-4 items-center justify-around">
+      <div className="flex flex-row h-12 w-full rounded-lg text-white bg-black/60 shadow-md py-3 px-4 items-center justify-around">
           <a className="absolute right-6" href="https://github.com/Atr1ck" target="_blank">
           <GithubOutlined className="text-2xl"/>
           </a>
@@ -29,7 +29,7 @@ export default function Home() {
   return (
     <div className="flex flex-col h-screen items-center">
       <TopNavi></TopNavi>
-      <div className="flex flex-grow flex-row w-10/12 ">
+      <div className="flex grow flex-row w-10/12 ">
         <div className="flex flex-col items-center w-1/4">
         <MusicPlayer></MusicPlayer>
         </div>
