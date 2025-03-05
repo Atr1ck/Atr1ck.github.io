@@ -6,8 +6,10 @@ from datetime import date
 
 ARTICLES_FOLDER = Path("public/articles")
 PICTURES_FOLDER = Path("public/pictures")
+MUSICS_FOLDER = Path("public/music")
 ARTICLES_OUTPUT_FILE = Path("public/json/articles.json")
 PICTURES_OUTPUT_FILE = Path("public/json/pictures.json")
+MUSICS_OUTPUT_FILE = Path("public/json/music.json")
 
 def convert_to_webp(input_image_path: str, output_image_path: str, quality: int = 75):
     """
@@ -77,7 +79,27 @@ def pictures_json():
 
     except Exception as e:
         print(e)
+        
+def music_json():
+    try:
+        MUSICS_OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
+
+        musics = [music for music in MUSICS_FOLDER.glob("*")]
+        
+        data = {"title":[], "author":[]}
+
+        for music in musics:
+            music_info = music.stem.split("-")
+            data["title"].append(music_info[0])
+            data["author"].append(music_info[1])
+
+        with MUSICS_OUTPUT_FILE.open("w", encoding="UTF-8") as output_file:
+            json.dump(data, output_file, ensure_ascii=False, indent=4)
+
+    except Exception as e:
+        print(e)
 
 if __name__ == '__main__':
     article_json()
     pictures_json()
+    music_json()

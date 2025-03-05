@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 
 interface Article {
   content : string,
-  data : string,
+  date : string,
   tags : string[],
   title : string
 }
@@ -30,14 +30,15 @@ export function ArticleList(){
   return (
       <div className="flex w-3/4 flex-col items-center">
             {Object.entries(data || {}).map(([title, article], index) => (
-              <div className="flex flex-row p-5 w-4/6 h-60 my-6 rounded-lg shadow-md bg-gray-950 hover:bg-gray-800 hover:w-4/5 hover:h-72 transition-all duration-300 opacity-80" key={index} onClick={() => navigate(`/articles/${title}`)} >
+              <div className="flex flex-row relative p-5 w-4/6 h-60 my-6 rounded-lg shadow-md bg-gray-950 hover:bg-gray-800 hover:w-4/5 hover:h-72 transition-all duration-300 opacity-80" key={index} onClick={() => navigate(`/articles/${title}`)} >
               <p className="w-9/12 border-r-2  text-white text-3xl font-light">{title}</p>
+              <p className="absolute text-white text-sm bottom-4 opacity-60">{article.date}</p>
               <div className="flex flex-col pl-4">
                 {article.tags.map((tag : string, index: number) => (
-                <p className="text-white text-md font-mono" key={index}># {tag}</p>
+                <p className="text-white text-md font-mono hover:text-blue-400 transition-all duration-300 cursor-default" key={index}>#{tag}</p>
               ))}
               </div>
-              </div>
+              </div>  
             ))}
       </div>
   );

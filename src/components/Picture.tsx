@@ -7,7 +7,7 @@ function Picturecard({ imgname, tags }: { imgname: string, tags: string[] }) {
 
     return (
         <div className={`flex flex-col w-full h-auto border border-gray-600 rounded-lg bg-gray-950 ${isModalOpen ? "" : "hover:shadow-lg hover:scale-105 transition-all duration-300"}`}>
-            {/* Display card */}
+
             <img
                 src={`/pictures/${imgname.split('.')[0] + '.webp'}`}
                 className="rounded-t-lg cursor-pointer"
@@ -16,26 +16,23 @@ function Picturecard({ imgname, tags }: { imgname: string, tags: string[] }) {
             />
             <div className="flex">
             {tags.map((tag, index) => (
-                <p key={index} className="text-white my-2 ml-2 hover:text-blue-400">
+                <p key={index} className="text-white my-2 ml-2 hover:text-blue-400 transition-all duration-300 cursor-default">
                     #{tag}
                 </p>
             ))}
             </div>
-            {/* Modal */}
+
             {isModalOpen && (
                 <div
-                    className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-80 z-50"
+                    className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-80 z-40"
                     onClick={toggleModal}
                 >
-                    {/* Prevent click propagation */}
                     <div className="relative bg-gray-800 p-4 rounded-lg">
-                        {/* Image */}
                         <img
                             src={`/pictures/${imgname}`}
                             alt={imgname}
                             className="max-w-full max-h-[80vh] rounded-lg"
                         />
-                        {/* Download Button */}
                         <a
                             href={`/pictures/${imgname}`}
                             download={imgname}
@@ -44,9 +41,8 @@ function Picturecard({ imgname, tags }: { imgname: string, tags: string[] }) {
                         >
                             下载图片
                         </a>
-                        {/* Close Button */}
                         <button
-                            className="absolute top-2 right-2 text-white text-xl"
+                            className="absolute top-2 right-2 text-white text-2xl z-50"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 toggleModal();
