@@ -36,10 +36,8 @@ export default function Home() {
   return (
     <div className="flex flex-col h-screen items-center">
       <TopNavi></TopNavi>
-      <div className="flex grow flex-row w-10/12 ">
-        <div className="flex flex-col items-center w-1/4">
-        <MusicPlayer></MusicPlayer>
-        </div>
+      <MusicPlayer></MusicPlayer>
+      <div className="flex flex-col grow w-full md:w-2/3">
         <QueryClientProvider client={new QueryClient} >
         <Outlet />
         </QueryClientProvider>

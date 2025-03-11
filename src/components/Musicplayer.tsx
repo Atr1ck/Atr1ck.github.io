@@ -1,4 +1,4 @@
-import { DownOutlined, PauseCircleOutlined, PlayCircleOutlined, StepBackwardOutlined, StepForwardOutlined, UnorderedListOutlined, UpOutlined } from "@ant-design/icons";
+import { PauseCircleOutlined, PlayCircleOutlined, StepBackwardOutlined, StepForwardOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import { useEffect, useRef, useState } from "react";
 import { Element, scroller } from "react-scroll";
 
@@ -18,7 +18,6 @@ export default function MusicPlayer(){
   const [author, setAuthor] = useState("ヨルシカ");
   const [songList, setSongList] = useState([{"title": "春泥棒", "author": "ヨルシカ"}]);
   const [listShow, setListShow] = useState(false);
-  const [folded, setFolded] = useState(true);
 
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -109,63 +108,55 @@ export default function MusicPlayer(){
 
   
   return (
-    <div className="grow flex justify-center mt-6 relative overflow-hidden max-h-screen w-full">
-      <div className={`absolute bg-cover -z-20 bg-[url('/images/yorushika.png')] bg-center w-full overflow-hidden transition-all duration-300 rounded-lg 
-        ${folded ? "h-28" : "h-3/5"}` }></div>
-      <div className={`absolute inset-0 bg-black/40 backdrop-blur-sm w-full -z-10 rounded-lg transition-all duration-300 ${folded ? "h-28" : "h-3/5"}`}></div>
-      <div className={`flex flex-col items-center justify-center p-6 bg-gray-100/40 rounded-lg shadow-md w-full gap-y-8 transition-all duration-300 relative ${folded ? "h-28" : "h-3/5"}`}>
+    <div className="absolute top-1/2 -translate-y-1/2 left-0 -translate-[95%] hover:translate-x-0 transition-all duration-300 hover:z-50 scale-y-30 hover:scale-y-100">
+      <div className={`flex flex-col items-center justify-center p-6 bg-gray-100/40 hover:bg-base-300/80 hover:md:bg-gray-100/40 rounded-2xl shadow-md w-full gap-y-8 transition-all duration-300 relative h-3/5`}>
         <audio ref={audioRef} src={`/music/${title}-${author}.mp3`} preload="metadata" onEnded={handleEnded}/>
         
-        <div className={`flex items-center transition-all duration-300 ${folded ? "flex-row gap-x-1 absolute top-1 left-3" : "flex-col gap-y-1 "}`}>
+        <div className={`flex items-center transition-all duration-300 flex-col gap-y-1`}>
           <p className="font-bold text-xl text-white">{title}</p>
           <p className=" text-white">{author}</p>
         </div>
 
-        {folded ? (
-          <p className="text-white font-bold text-center absolute">{activeLyricIndex ? lyrics[activeLyricIndex].text : ""}</p>
-        ) : (
-          <div className="flex flex-col overflow-y-hidden h-64 " id="lyrics-container">
-          {lyrics.map((lyric, index) => (
-            <Element
-              key={index}
-              name={`lyric-${index}`}
-              className={`p-2 ${
-                index === activeLyricIndex ? "text-white font-bold text-xl duration-75 transition-all text-center" : "text-gray-200 duration-75 transition-all text-center"
-              }`}
-            >
-              {lyric.text}
-            </Element>
-          ))}
-        </div>
-        )}
+        <div className="flex flex-col overflow-y-hidden h-64 " id="lyrics-container">
+        {lyrics.map((lyric, index) => (
+          <Element
+            key={index}
+            name={`lyric-${index}`}
+            className={`p-2 ${
+              index === activeLyricIndex ? "text-white font-bold text-xl duration-75 transition-all text-center" : "text-gray-200 duration-75 transition-all text-center"
+            }`}
+          >
+            {lyric.text}
+          </Element>
+        ))}
+      </div>
 
-        <div className={`flex w-full text-sm text-black ${folded ? "absolute left-2 bottom-0" : "justify-center"}`}>
+        <div className={`flex w-full text-sm text-white justify-center`}>
           <div className="font-bold text-lg">
             {String(Math.floor(currentTime / 60)).padStart(2, "0")}:
             {String(Math.floor(currentTime) - Math.floor(currentTime / 60) * 60).padStart(2, "0")}
           </div>
-          <input type="range" value={currentTime} min="0" max={audioRef.current?.duration || 0} step="0.1" onChange={handleProgressChange} className={`mx-2 transition-all duration-300 ${folded ? "w-2/6" : "w-3/5"}`}/>
+          <input type="range" value={currentTime} min="0" max={audioRef.current?.duration || 0} step="0.1" onChange={handleProgressChange} className={`mx-2 transition-all duration-300 w-3/5`}/>
           <div className="font-bold text-lg">
             {String(Math.floor(audioRef.current?.duration as number / 60 || 0)).padStart(2, "0")}:
             {String(Math.floor(audioRef.current?.duration as number) - Math.floor(audioRef.current?.duration as number / 60) * 60 || 0).padStart(2, "0")}
           </div>
         </div>
 
-        <div className={`flex gap-x-1 ${folded ? "absolute right-2 bottom-1" : ""}`}>
-        <StepBackwardOutlined className={`transition-all duration-300 ${folded ? "text-2xl" : "text-4xl"}`} onClick={() => { 
+        <div className={`flex gap-x-1`}>
+        <StepBackwardOutlined className={`transition-all duration-300 text-4xl`} onClick={() => { 
           setMusicId((prevId) => prevId - 1 < 0 ? totalMusic - 1 : prevId - 1);
           setIsPlaying(false);
           }}/>
-        {isPlaying ? <PauseCircleOutlined className={`transition-all duration-300 ${folded ? "text-2xl" : "text-4xl"}`} onClick={togglePlay}/> : 
-        <PlayCircleOutlined className={`transition-all duration-300 ${folded ? "text-2xl" : "text-4xl"}`} onClick={togglePlay}/>}
-        <StepForwardOutlined className={`transition-all duration-300 ${folded ? "text-2xl" : "text-4xl"}`} onClick={() => {
+        {isPlaying ? <PauseCircleOutlined className={`transition-all duration-300 text-4xl`} onClick={togglePlay}/> : 
+        <PlayCircleOutlined className={`transition-all duration-300 text-4xl`} onClick={togglePlay}/>}
+        <StepForwardOutlined className={`transition-all duration-300 text-4xl`} onClick={() => {
           setMusicId((prevId) => (prevId + 1) % totalMusic);
           setIsPlaying(false);
           }}/>
         </div>
 
-        {folded ? <UpOutlined className="text-xl absolute top-2 right-3 " onClick={() => setFolded(false)}/> : <DownOutlined className="text-xl absolute top-2 right-3" onClick={() => setFolded(true)}/>}
-        <UnorderedListOutlined className="text-xl absolute top-2 right-10 z-10" onClick={() => setListShow(!listShow)}/>
+        <UnorderedListOutlined className="text-xl absolute top-2 right-5 z-10" onClick={() => setListShow(!listShow)}/>
         <div
           className={`absolute top-0 right-0 w-full h-full bg-gray-800 text-white p-4 overflow-y-auto transition-all duration-300 origin-right rounded-md ${
             listShow ? "opacity-100" : "scale-x-0 opacity-0"

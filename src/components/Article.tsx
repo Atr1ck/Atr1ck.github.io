@@ -28,7 +28,7 @@ export function ArticleList(){
   }
 
   return (
-    <div className="flex w-full md:w-3/4 flex-col items-center">
+    <div className="flex flex-col items-center">
     {Object.entries(data || {}).map(([title, article], index) => (
       <div 
         className="
@@ -60,10 +60,10 @@ export function ArticleList(){
         </p>
         
         <p className="
-          absolute sm:static     // 小屏绝对定位，中屏+静态定位
+          absolute
           text-xs sm:text-sm    // 响应式字体大小
           text-white 
-          bottom-1 sm:bottom-4  // 响应式定位
+          bottom-2 sm:bottom-4  // 响应式定位
           left-2 sm:left-auto   // 调整小屏位置
           opacity-60
         ">

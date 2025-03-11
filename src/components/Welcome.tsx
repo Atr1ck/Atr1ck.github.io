@@ -35,7 +35,7 @@ export default function WelcomeOverlay() {
   return (
     <animated.div
       style={welcomeStyles}
-      className="fixed inset-0 z-20 flex items-center justify-center bg-cover bg-[url('/images/welcome-bg-com.webp')]"
+      className="fixed inset-0 z-20 flex items-center justify-center bg-cover bg-[url('/images/welcome-bg-mobile-com.webp')] md:bg-[url('/images/welcome-bg-com.webp')]"
     >
     <div className='bg-black/50 w-full h-full absolute blur-sm'></div>
       <animated.div
