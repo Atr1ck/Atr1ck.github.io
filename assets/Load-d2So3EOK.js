@@ -1,0 +1,1 @@
+import{j as e}from"./index-CEXQt1Eq.js";function i(){return e.jsx("div",{className:"flex items-center justify-center",children:e.jsx("div",{className:"loading loading-spinner"})})}export{i as default};
