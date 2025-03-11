@@ -39,6 +39,9 @@ def article_json():
         data = {}
         for file_path in markdown_files:
             # 打开文件并加载 frontmatter 数据
+            if file_path.name.startswith("Hide"):
+                continue
+            
             with file_path.open("r", encoding="UTF-8") as file:
                 content = frontmatter.load(file)
                 metadata = content.metadata
@@ -69,7 +72,7 @@ def pictures_json():
         data = {}
 
         for picture in pictures:
-            convert_to_webp("public/pictures/" + picture.name , "public/pictures/" + picture.stem + '.webp')
+            convert_to_webp("public/pictures/" + picture.name , "public/pictures/" + picture.stem + '.webp', quality=5)
             tags = picture.stem.split()[1:]
             data[picture.name] = tags
         

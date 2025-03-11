@@ -112,7 +112,7 @@ export default function MusicPlayer(){
     <div className="grow flex justify-center mt-6 relative overflow-hidden max-h-screen w-full">
       <div className={`absolute bg-cover -z-20 bg-[url('/images/yorushika.png')] bg-center w-full overflow-hidden transition-all duration-300 rounded-lg 
         ${folded ? "h-28" : "h-3/5"}` }></div>
-      <div className={`absolute inset-0 bg-black bg-black/40 backdrop-blur-sm w-full -z-10 rounded-lg transition-all duration-300 ${folded ? "h-28" : "h-3/5"}`}></div>
+      <div className={`absolute inset-0 bg-black/40 backdrop-blur-sm w-full -z-10 rounded-lg transition-all duration-300 ${folded ? "h-28" : "h-3/5"}`}></div>
       <div className={`flex flex-col items-center justify-center p-6 bg-gray-100/40 rounded-lg shadow-md w-full gap-y-8 transition-all duration-300 relative ${folded ? "h-28" : "h-3/5"}`}>
         <audio ref={audioRef} src={`/music/${title}-${author}.mp3`} preload="metadata" onEnded={handleEnded}/>
         
@@ -165,7 +165,7 @@ export default function MusicPlayer(){
         </div>
 
         {folded ? <UpOutlined className="text-xl absolute top-2 right-3 " onClick={() => setFolded(false)}/> : <DownOutlined className="text-xl absolute top-2 right-3" onClick={() => setFolded(true)}/>}
-        <UnorderedListOutlined className="text-xl absolute top-2 right-10 z-20" onClick={() => setListShow(!listShow)}/>
+        <UnorderedListOutlined className="text-xl absolute top-2 right-10 z-10" onClick={() => setListShow(!listShow)}/>
         <div
           className={`absolute top-0 right-0 w-full h-full bg-gray-800 text-white p-4 overflow-y-auto transition-all duration-300 origin-right rounded-md ${
             listShow ? "opacity-100" : "scale-x-0 opacity-0"

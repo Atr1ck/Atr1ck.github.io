@@ -7,23 +7,30 @@ function TopNavi() {
   const navigate = useNavigate();
 
   return (
-      <div className="flex flex-row h-12 w-full rounded-lg text-white bg-black/60 shadow-md py-3 px-4 items-center justify-around">
-          <a className="absolute right-6" href="https://github.com/Atr1ck" target="_blank">
-          <GithubOutlined className="text-2xl"/>
-          </a>
-          <div>
-              <button className="hover:bg-slate-600 px-2 py-1 transition-all duration-300 rounded-md" onClick={() => navigate('/')}>首页</button>
+      <div className="navbar max-h-16 bg-black/60 shadow-sm rounded-b-2xl">
+          <div className="navbar-start font-bold pl-2 text-xl">
+            Atr1ck's Blog
           </div>
-          <div>
-              <button className="hover:bg-slate-600 px-2 py-1 transition-all duration-300 rounded-md" onClick={() => navigate('/pictures')}>照片墙</button>
-          </div>
-          <div>
-              33
+          <div className="navbar-center flex-row gap-x-5">
+              <div>
+                  <button className="btn btn-ghost rounded-xl" onClick={() => navigate('/')}>首页</button>
+              </div>
+              <div>
+                  <button className="btn btn-ghost rounded-xl" onClick={() => navigate('/pictures')}>照片墙</button>
+              </div>
+              <div>
+                  <button className="btn btn-ghost rounded-xl" onClick={() => navigate('/test')}>测试</button>
+              </div>
           </div> 
+          <div className="navbar-end h-full gap-x-3">
+              <a className="" href="https://github.com/Atr1ck" target="_blank">
+              <GithubOutlined className="text-2xl"/>
+              </a>
+              <img src="/images/avatar.jpg" className="h-5/6 w-auto mask mask-circle"></img>
+          </div>
       </div>
   )
 }
-
 
 export default function Home() {
   return (

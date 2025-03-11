@@ -28,19 +28,70 @@ export function ArticleList(){
   }
 
   return (
-      <div className="flex w-3/4 flex-col items-center">
-            {Object.entries(data || {}).map(([title, article], index) => (
-              <div className="flex flex-row relative p-5 w-4/6 h-60 my-6 rounded-lg shadow-md bg-gray-950 hover:bg-gray-800 hover:w-4/5 hover:h-72 transition-all duration-300 opacity-80" key={index} onClick={() => navigate(`/articles/${title}`)} >
-              <p className="w-9/12 border-r-2  text-white text-3xl font-light">{title}</p>
-              <p className="absolute text-white text-sm bottom-4 opacity-60">{article.date}</p>
-              <div className="flex flex-col pl-4">
-                {article.tags.map((tag : string, index: number) => (
-                <p className="text-white text-md font-mono hover:text-blue-400 transition-all duration-300 cursor-default" key={index}>#{tag}</p>
-              ))}
-              </div>
-              </div>  
-            ))}
-      </div>
+    <div className="flex w-full md:w-3/4 flex-col items-center">
+    {Object.entries(data || {}).map(([title, article], index) => (
+      <div 
+        className="
+          flex flex-col sm:flex-row  // 小屏垂直排列，中屏+横向排列
+          relative p-3 sm:p-5       // 响应式内边距
+          w-5/6 sm:w-4/6           // 不同屏幕宽度
+          h-48 sm:h-60             // 不同屏幕高度
+          my-4 sm:my-6             // 响应式外边距
+          rounded-lg shadow-md 
+          bg-gray-950 hover:bg-gray-800 
+          hover:w-5/6 sm:hover:w-4/5 // 悬停宽度变化
+          hover:h-56 sm:hover:h-72   // 悬停高度变化
+          transition-all duration-300 
+          opacity-80
+          cursor-pointer           // 添加指针效果
+        " 
+        key={index}
+        onClick={() => navigate(`/articles/${title}`)}
+      >
+        <p className="
+          w-full sm:w-9/12        // 小屏全宽，中屏+ 9/12
+          sm:border-r-2          // 仅中屏+显示右边框
+          text-xl sm:text-3xl     // 响应式字体大小
+          text-white 
+          font-light
+          pb-2 sm:pb-0           // 小屏添加下边距
+        ">
+          {title}
+        </p>
+        
+        <p className="
+          absolute sm:static     // 小屏绝对定位，中屏+静态定位
+          text-xs sm:text-sm    // 响应式字体大小
+          text-white 
+          bottom-1 sm:bottom-4  // 响应式定位
+          left-2 sm:left-auto   // 调整小屏位置
+          opacity-60
+        ">
+          {article.date}
+        </p>
+        
+        <div className="
+          flex flex-col 
+          pl-0 sm:pl-4         // 响应式左内边距
+          pt-2 sm:pt-0         // 小屏添加上边距
+        ">
+          {article.tags.map((tag: string, index: number) => (
+            <p className="
+              text-sm sm:text-md  // 响应式字体大小
+              font-mono 
+              hover:text-blue-400 
+              transition-all duration-300 
+              cursor-default
+            " 
+              key={index}
+            >
+              #{tag}
+            </p>
+          ))}
+        </div>
+      </div>  
+    ))}
+  </div>
   );
   }
 
