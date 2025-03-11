@@ -10,11 +10,12 @@ const ArticleContent = lazy(() => import('./components/Article.tsx').then(m => (
 const ArticleList = lazy(() => import('./components/Article.tsx').then(m => ({ default: m.ArticleList })));
 const Imageshow = lazy(() => import('./components/Picture.tsx'));
 const Test = lazy(() => import('./components/Test.tsx'));
+const Loading = lazy(() => import('./components/Load.tsx'))
 
 const router = createHashRouter([
   {
     path: "/",
-    element: <Suspense fallback={<div>Loading...</div>}><Home /></Suspense>,
+    element: <Suspense fallback={<Loading />}><Home /></Suspense>,
     children: [
       {
         index: true,
@@ -22,19 +23,19 @@ const router = createHashRouter([
       },
       {
         path: "articles/:title",
-        element: <Suspense fallback={<div>Loading...</div>}><ArticleContent /></Suspense>,
+        element: <Suspense fallback={<Loading />}><ArticleContent /></Suspense>,
       },
       {
         path: "articleList",
-        element: <Suspense fallback={<div>Loading...</div>}><ArticleList /></Suspense>,
+        element: <Suspense fallback={<Loading />}><ArticleList /></Suspense>,
       },
       {
         path: "pictures",
-        element: <Suspense fallback={<div>Loading...</div>}><Imageshow /></Suspense>,
+        element: <Suspense fallback={<Loading />}><Imageshow /></Suspense>,
       },
       {
         path: "test",
-        element: <Suspense fallback={<div>Loading...</div>}><Test /></Suspense>,
+        element: <Suspense fallback={<Loading />}><Test /></Suspense>,
       }
     ]
   }

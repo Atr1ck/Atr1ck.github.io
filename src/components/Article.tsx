@@ -3,6 +3,7 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import { useQuery } from "@tanstack/react-query";
+import Loading from "./Load";
 
 interface Article {
   content : string,
@@ -24,7 +25,7 @@ export function ArticleList(){
   })
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return <Loading />
   }
 
   return (

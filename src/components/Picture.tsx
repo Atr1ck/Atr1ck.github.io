@@ -104,7 +104,7 @@ export default function Imageshow() {
     }
 
     return (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 items-start mt-6 ml-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 items-start mt-6">
             <div className='space-y-4'>
             {Object.entries(part1 || {}).map(([imgname, tags], index) => {
                 return (
