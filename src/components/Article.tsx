@@ -40,8 +40,7 @@ export function ArticleList(){
           my-4 sm:my-6             // 响应式外边距
           rounded-lg shadow-md 
           bg-gray-950 hover:bg-gray-800 
-          hover:w-5/6 sm:hover:w-4/5 // 悬停宽度变化
-          hover:h-56 sm:hover:h-72   // 悬停高度变化
+          hover:scale-105
           transition-all duration-300 
           opacity-80
           cursor-pointer           // 添加指针效果
@@ -113,8 +112,8 @@ export function ArticleContent(){
 
   console.log(data);
   return (
-    <div className="grow mx-24 my-8 border-2 border-slate-800 p-8 bg-slate-800 rounded-lg opacity-95">
-      <div className="prose prose-headings:text-white prose-pre:bg-slate-900  text-white">
+    <div className="flex w-full justify-center">
+      <div className="max-w-full w-full md:w-2/3 prose bg-base-300/95 m-2 p-8 rounded-2xl">
       <Markdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>{data[title || ""]["content"]}</Markdown>
       </div>
     </div>

@@ -108,8 +108,8 @@ export default function MusicPlayer(){
 
   
   return (
-    <div className="absolute top-1/2 -translate-y-1/2 left-0 -translate-[95%] hover:translate-x-0 transition-all duration-300 hover:z-50 scale-y-30 hover:scale-y-100">
-      <div className={`flex flex-col items-center justify-center p-6 bg-gray-100/40 hover:bg-base-300/80 hover:md:bg-gray-100/40 rounded-2xl shadow-md w-full gap-y-8 transition-all duration-300 relative h-3/5`}>
+    <div className="absolute top-1/2 -translate-y-1/2 left-0 -translate-x-[100%] md:-translate-x-[95%] hover:translate-x-0 transition-all duration-300 hover:z-50 scale-y-30 hover:scale-y-100">
+      <div className={`flex flex-col items-center justify-center p-6 bg-gray-100/40 hover:bg-gray-100/40 rounded-2xl shadow-md w-full gap-y-8 transition-all duration-300 relative h-3/5`}>
         <audio ref={audioRef} src={`/music/${title}-${author}.mp3`} preload="metadata" onEnded={handleEnded}/>
         
         <div className={`flex items-center transition-all duration-300 flex-col gap-y-1`}>

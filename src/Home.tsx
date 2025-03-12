@@ -8,7 +8,7 @@ function TopNavi() {
 
   return (
       <div className="navbar max-h-16 bg-black/60 shadow-sm rounded-b-2xl">
-          <div className="navbar-start font-bold pl-2 text-xl">
+          <div className="navbar-start font-bold pl-2 text-lg md:text-2xl">
             Atr1ck's Blog
           </div>
           <div className="navbar-center flex-row gap-x-5">
