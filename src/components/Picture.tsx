@@ -10,7 +10,7 @@ function Picturecard({ imgname, tags }: { imgname: string, tags: string[] }) {
 
   const handleImageLoad = () => {
     setIsImageLoaded(true); // 图片加载完成后更新状态
-  };
+  }; 
 
   return (
     <div
@@ -36,6 +36,7 @@ function Picturecard({ imgname, tags }: { imgname: string, tags: string[] }) {
             key={index}
             className="text-white my-2 ml-2 hover:text-blue-400 transition-all duration-300 cursor-default"
           >
+           
             #{tag}
           </p>
         ))}
