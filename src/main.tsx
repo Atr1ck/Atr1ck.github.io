@@ -4,13 +4,13 @@ import './index.css';
 import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom';
 
 // 使用 lazy() 进行按需加载
-const WelcomeOverlay = lazy(() => import('./components/Welcome.tsx'))
+const WelcomeOverlay = lazy(() => import('./components/Welcome/Welcome.tsx'))
 const Home = lazy(() => import('./Home.tsx'));
-const ArticleContent = lazy(() => import('./components/Article.tsx').then(m => ({ default: m.ArticleContent })));
-const ArticleList = lazy(() => import('./components/Article.tsx').then(m => ({ default: m.ArticleList })));
-const Imageshow = lazy(() => import('./components/Picture.tsx'));
-const Test = lazy(() => import('./components/Test.tsx'));
-const Loading = lazy(() => import('./components/Load.tsx'))
+const ArticleContent = lazy(() => import('./components/Articles/ArticleContent.tsx'));
+const ArticleList = lazy(() => import('./components/Articles/ArticleList.tsx'));
+const Imageshow = lazy(() => import('./components/Picture/Picture.tsx'));
+const Test = lazy(() => import('./components/Test/Test.tsx'));
+const Loading = lazy(() => import('./components/Load/Load.tsx'))
 
 const router = createHashRouter([
   {

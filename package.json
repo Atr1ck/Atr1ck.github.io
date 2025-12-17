@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "deploy": "gh-pages -d dist",
-    "update": "./.venv/bin/python3.12 beforedeploy/article.py"
+    "update": "./.venv/bin/python3.12 beforedeploy/generatejson.py"
   },
   "dependencies": {
     "@ant-design/icons": "^5.5.1",

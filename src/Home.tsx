@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { Outlet, useNavigate } from "react-router-dom"
-import MusicPlayer from "./components/Musicplayer";
+import MusicPlayer from "./components/MusicPlayer/Musicplayer";
 import { GithubOutlined } from "@ant-design/icons";
 
 function TopNavi() {
