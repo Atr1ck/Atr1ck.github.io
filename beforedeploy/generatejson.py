@@ -1,6 +1,7 @@
 import json
 import ffmpeg
 import frontmatter
+import argparse
 from pathlib import Path
 from datetime import date
 
@@ -10,6 +11,39 @@ MUSICS_FOLDER = Path("public/music")
 ARTICLES_OUTPUT_FILE = Path("public/json/articles.json")
 PICTURES_OUTPUT_FILE = Path("public/json/pictures.json")
 MUSICS_OUTPUT_FILE = Path("public/json/music.json")
+
+def new_article(title: str, tags: list[str] | None = None):
+    ARTICLES_FOLDER.mkdir(parents=True, exist_ok=True)
+
+    file_path = ARTICLES_FOLDER / f"{title}.md"
+
+    if file_path.exists():
+        print(f"文章已存在：{file_path}")
+        return
+
+    today = date.today().isoformat()
+
+    if not tags or len(tags) == 0:
+        tags = []
+
+    tags_block = "\n".join([f"  - {tag}" for tag in tags])
+
+    content = f"""---
+title: {title}
+date: {today}
+tags:
+{tags_block}
+---
+
+"""
+
+    with file_path.open("w", encoding="UTF-8") as f:
+        f.write(content)
+
+
+    print(f"新文章已创建：{file_path}")
+
+
 
 def convert_to_webp(input_image_path: str, output_image_path: str, quality: int = 75):
     """
@@ -103,6 +137,24 @@ def music_json():
         print(e)
 
 if __name__ == '__main__':
-    article_json()
-    pictures_json()
-    music_json()
+    parser = argparse.ArgumentParser(description="Blog 资源管理工具")
+    subparsers = parser.add_subparsers(dest="command")
+
+    # new 命令
+    new_parser = subparsers.add_parser("new", help="新建文章")
+    new_parser.add_argument("title", help="文章标题")
+    new_parser.add_argument(
+        "--tags",
+        nargs="*",
+        help="文章标签，如：--tags 前端 React 日志"
+    )
+
+    args = parser.parse_args()
+
+    if args.command == "new":
+        new_article(args.title, args.tags)
+    else:
+        article_json()
+        pictures_json()
+        music_json()
+
