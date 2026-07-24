@@ -1,58 +1,63 @@
 import { useState, useEffect } from 'react';
+import Loading from '../Load/Load';
+
+type Pictures = Record<string, string[]>;
+
+function getWebpName(imgname: string) {
+  return imgname.replace(/\.[^.]+$/, '.webp');
+}
 
 function Picturecard({ imgname, tags }: { imgname: string, tags: string[] }) {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isImageLoaded, setIsImageLoaded] = useState(false); // 跟踪图片加载状态
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
   };
 
   const handleImageLoad = () => {
-    setIsImageLoaded(true); // 图片加载完成后更新状态
-  }; 
+    setIsImageLoaded(true);
+  };
 
   return (
     <div
-      className={`card w-full h-auto border border-base-300 rounded-lg bg-base-100 text-base-content ${
-        isModalOpen ? '' : 'hover:shadow-lg hover:scale-105 transition-all duration-300'
+      className={`card mb-4 inline-block w-full break-inside-avoid overflow-hidden border border-base-300 rounded-lg bg-base-100 text-base-content ${
+        isModalOpen ? '' : 'hover:shadow-lg hover:-translate-y-1 transition-all duration-300'
       }`}
     >
-      {/* 图片容器 */}
       <div className="relative">
         <img
-          src={`/pictures/${imgname.split('.')[0] + '.webp'}`}
-          className={`rounded-t-lg cursor-pointer transition-all duration-500 ${isImageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`} // 图片加载完成后再显示
+          src={`/pictures/${getWebpName(imgname)}`}
+          className={`block h-auto w-full cursor-pointer transition-all duration-500 ${isImageLoaded ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}
           alt={imgname}
           onClick={toggleModal}
-          onLoad={handleImageLoad} // 监听图片加载完成事件
+          onLoad={handleImageLoad}
+          loading="lazy"
+          decoding="async"
         />
       </div>
 
-      {/* 标签 */}
-      <div className="flex">
+      <div className="flex flex-wrap gap-x-2 px-3 py-2">
         {tags.map((tag, index) => (
           <p
             key={index}
-            className="text-base-content/75 my-2 ml-2 hover:text-primary transition-all duration-300 cursor-default"
+            className="text-sm text-base-content/75 hover:text-primary transition-colors duration-300 cursor-default"
           >
-           
             #{tag}
           </p>
         ))}
       </div>
 
-      {/* 模态框 */}
       {isModalOpen && (
         <div
-          className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black/60 bg-opacity-80 z-40"
+          className="fixed inset-0 z-[110] flex items-center justify-center bg-black/70 p-4"
           onClick={toggleModal}
         >
-          <div className="relative bg-base-100 p-4 rounded-lg">
+          <div className="relative max-h-full max-w-5xl bg-base-100 p-4 rounded-lg shadow-2xl">
             <img
               src={`/pictures/${imgname}`}
               alt={imgname}
-              className="max-w-full max-h-[80vh] rounded-lg"
+              className="max-h-[78vh] max-w-full rounded-lg object-contain"
             />
             <a
               href={`/pictures/${imgname}`}
@@ -63,7 +68,9 @@ function Picturecard({ imgname, tags }: { imgname: string, tags: string[] }) {
               下载图片
             </a>
             <button
-              className="absolute top-2 right-2 text-white text-2xl z-50"
+              type="button"
+              aria-label="关闭图片预览"
+              className="btn btn-circle btn-sm absolute right-2 top-2 z-10 bg-black/60 text-white border-0 hover:bg-black/80"
               onClick={(e) => {
                 e.stopPropagation();
                 toggleModal();
@@ -76,57 +83,36 @@ function Picturecard({ imgname, tags }: { imgname: string, tags: string[] }) {
       )}
     </div>
   );
-};
+}
 
 
 export default function Imageshow() {
-    const [pictures, setPictures] = useState({});
-    let part1;
-    let part2;
-    let part3;
-    useEffect(() => {
-        fetch('/json/pictures.json')
-            .then((res) => res.json())
-            .then((data) => {
-                setPictures(data);
-        })
-    }, []);
+  const [pictures, setPictures] = useState<Pictures | null>(null);
+  const [loadError, setLoadError] = useState(false);
 
-    if (pictures) {
-        const entries = Object.entries(pictures);
+  useEffect(() => {
+    fetch('/json/pictures.json')
+      .then((response) => {
+        if (!response.ok) throw new Error(`Failed to load pictures: ${response.status}`);
+        return response.json();
+      })
+      .then((data: Pictures) => setPictures(data))
+      .catch(() => setLoadError(true));
+  }, []);
 
-        // 确定每部分的大小
-        const chunkSize = Math.ceil(entries.length / 3);
+  if (loadError) {
+    return <div className="p-8 text-center">照片加载失败</div>;
+  }
 
-        // 分割为三部分
-        part1 = Object.fromEntries(entries.slice(0, chunkSize));
-        part2 = Object.fromEntries(entries.slice(chunkSize, chunkSize * 2));
-        part3 = Object.fromEntries(entries.slice(chunkSize * 2));
-    }
+  if (!pictures) {
+    return <Loading />;
+  }
 
-    return (
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 items-start mt-6">
-            <div className='space-y-4'>
-            {Object.entries(part1 || {}).map(([imgname, tags], index) => {
-                return (
-                <Picturecard imgname={imgname} key={index} tags={tags as string[]}></Picturecard>
-                )
-            })}
-            </div>
-            <div className='space-y-4'>
-            {Object.entries(part2 || {}).map(([imgname, tags], index) => {
-                return (
-                <Picturecard imgname={imgname} key={index} tags={tags as string[]}></Picturecard>
-                )
-            })}
-            </div>
-            <div className='space-y-4'>
-            {Object.entries(part3 || {}).map(([imgname, tags], index) => {
-                return (
-                <Picturecard imgname={imgname} key={index} tags={tags as string[]}></Picturecard>
-                )
-            })}
-            </div>
-        </div>
-    );
+  return (
+    <div className="columns-2 gap-3 px-2 pt-6 md:columns-3 md:gap-4 xl:columns-4">
+      {Object.entries(pictures).map(([imgname, tags]) => (
+        <Picturecard imgname={imgname} key={imgname} tags={tags} />
+      ))}
+    </div>
+  );
 }
