@@ -12,8 +12,12 @@
           : (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
         document.documentElement.dataset.theme = theme;
         document.documentElement.style.colorScheme = theme;
+        document.documentElement.dataset.background = localStorage.getItem("background-enabled") === "false"
+          ? "hidden"
+          : "visible";
       } catch {
         document.documentElement.dataset.theme = "dark";
+        document.documentElement.dataset.background = "visible";
       }
     </script>
   </head>
