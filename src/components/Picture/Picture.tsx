@@ -14,7 +14,7 @@ function Picturecard({ imgname, tags }: { imgname: string, tags: string[] }) {
 
   return (
     <div
-      className={`card w-full h-auto border border-gray-600 rounded-lg bg-gray-950 ${
+      className={`card w-full h-auto border border-base-300 rounded-lg bg-base-100 text-base-content ${
         isModalOpen ? '' : 'hover:shadow-lg hover:scale-105 transition-all duration-300'
       }`}
     >
@@ -34,7 +34,7 @@ function Picturecard({ imgname, tags }: { imgname: string, tags: string[] }) {
         {tags.map((tag, index) => (
           <p
             key={index}
-            className="text-white my-2 ml-2 hover:text-blue-400 transition-all duration-300 cursor-default"
+            className="text-base-content/75 my-2 ml-2 hover:text-primary transition-all duration-300 cursor-default"
           >
            
             #{tag}

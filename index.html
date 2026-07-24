@@ -1,14 +1,26 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="zh-CN" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Atr1ck's blog</title>
+    <script>
+      try {
+        const savedTheme = localStorage.getItem("theme");
+        const theme = savedTheme === "light" || savedTheme === "dark"
+          ? savedTheme
+          : (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+      } catch {
+        document.documentElement.dataset.theme = "dark";
+      }
+    </script>
   </head>
-  <body class="relative h-screen bg-fixed">
-    <div class="absolute inset-0 bg-cover bg-center bg-[url('/images/main-bg-com.webp')] blur-xs -z-20"></div>
-    <div class="absolute inset-0 bg-black/40 -z-10"></div>
-    <div id="root" class="relative z-10 overflow-auto h-full"></div>
+  <body class="relative min-h-screen bg-fixed">
+    <div id="site-background" class="fixed inset-0 bg-cover bg-center -z-20"></div>
+    <div id="site-overlay" class="fixed inset-0 -z-10"></div>
+    <div id="root" class="relative z-10 overflow-auto min-h-screen"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

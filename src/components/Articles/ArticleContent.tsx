@@ -3,7 +3,6 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import { useQuery } from "@tanstack/react-query";
-import "highlight.js/styles/github-dark.css";
 import type { Article } from "../../types/article";
 
 export default ArticleContent;
@@ -39,7 +38,7 @@ function ArticleContent() {
 
   return (
     <div className="flex w-full justify-center">
-      <article className="article-markdown prose prose-invert w-full max-w-4xl break-words bg-base-300/95 m-2 p-5 sm:p-8 rounded-lg">
+      <article className="article-markdown prose w-full max-w-4xl break-words bg-base-100/95 text-base-content border border-base-300/70 shadow-sm m-2 p-5 sm:p-8 rounded-lg transition-colors duration-300">
         <Markdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>
           {article.content}
         </Markdown>
