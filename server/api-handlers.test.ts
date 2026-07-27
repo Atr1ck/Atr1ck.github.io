@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import publishHandler from "../api/articles/publish.js";
-import listHandler from "../api/articles/index.js";
+import listHandler from "../api/articles.js";
 import redeployHandler from "../api/deployments/redeploy.js";
 import logoutHandler from "../api/auth/logout.js";
 import callbackHandler from "../api/auth/callback.js";

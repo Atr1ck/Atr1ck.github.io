@@ -17,7 +17,7 @@ export function getRepository(): GitHubRepository {
   return {
     owner: requireEnv("GITHUB_REPOSITORY_OWNER"),
     repo: requireEnv("GITHUB_REPOSITORY_NAME"),
-    branch: process.env.GITHUB_BRANCH?.trim() || "main",
+    branch: requireEnv("GITHUB_BRANCH"),
   };
 }
 

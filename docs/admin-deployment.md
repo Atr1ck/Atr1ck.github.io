@@ -28,14 +28,14 @@
 - `APP_ORIGIN` 必须是准确的生产环境 Origin，不能包含路径或结尾斜杠。
 - `SESSION_SECRET` 必须包含至少 32 个随机字节，例如使用 `openssl rand -base64 48` 生成。
 - `GITHUB_ADMIN_LOGINS` 是不区分大小写、使用逗号分隔的管理员 GitHub 用户名白名单。
-- `GITHUB_BRANCH` 应保持为 `main`，用于直接发布。
+- `GITHUB_BRANCH` 必须与 Vercel Production Branch 一致。当前仓库的默认分支和生产分支都是 `self`，因此填写 `self`。
 - `VERCEL_PROJECT_ID` 和 `VERCEL_PROJECT_NAME` 用于标识当前 Vercel 项目。
 - 个人项目可以不配置 `VERCEL_TEAM_ID`；项目属于团队时必须配置。
 - `VERCEL_API_TOKEN` 必须拥有读取此项目 Deployment 和创建重新部署的权限。
 
 Vercel Framework Preset 选择 Vite，构建命令使用 `npm run build`。`prebuild` 会生成并校验 `public/json/articles.json` 和旧标题别名映射。
 
-GitHub 写入分支必须与 Vercel Production Branch 完全一致。发布接口会通过 Vercel Project API 检查两者，不一致时拒绝写入。实现此系统时，仓库默认分支和 Vercel Production Branch 仍然是 `self`，而已确认的文章发布目标是 `main`。启用 `/admin` 前，需要先将 `main` 快进到已经通过测试的应用提交，再把 Vercel Production Branch 修改为 `main`。
+GitHub 写入分支必须与 Vercel Production Branch 完全一致。发布接口会通过 Vercel Project API 检查两者，不一致时拒绝写入。当前生产环境使用 `self`，后台发布会直接向 `self` 创建原子 commit，并由 Vercel 自动触发 Production Deployment。
 
 ## 4. 生产环境验收
 
