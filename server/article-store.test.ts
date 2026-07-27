@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { listAdminArticles, readAdminArticle } from "./article-store.js";
 import type { ArticleStoreDependencies } from "./article-store.js";
+import { HttpError } from "./http.js";
 
 const MARKDOWN = `---
 title: Hidden article
@@ -56,4 +57,75 @@ test("reads a slug article and returns editable Markdown", async () => {
   const article = await readAdminArticle("hidden-article", dependencies());
   assert.equal(article.slug, "hidden-article");
   assert.equal(article.markdown, MARKDOWN);
+});
+
+function notFound(): HttpError {
+  return new HttpError(404, "Not Found", { status: 404 });
+}
+
+test("reports when the GitHub App installation cannot access the configured repository", async () => {
+  const restricted = dependencies();
+  restricted.request = async <T>(route: string): Promise<T> => {
+    if (route.includes("/contents/public/articles?")) throw notFound();
+    if (route === "/repos/Atr1ck/Atr1ck.github.io") throw notFound();
+    throw new Error(`Unexpected route: ${route}`);
+  };
+
+  await assert.rejects(
+    () => listAdminArticles(restricted),
+    (error: unknown) => {
+      assert.ok(error instanceof HttpError);
+      assert.equal(error.status, 503);
+      assert.match(error.message, /installation cannot access Atr1ck\/Atr1ck\.github\.io/);
+      assert.deepEqual(error.details, {
+        code: "GITHUB_APP_REPOSITORY_ACCESS_DENIED",
+        repository: "Atr1ck/Atr1ck.github.io",
+        hint: "Install the GitHub App on this repository, then verify GITHUB_APP_INSTALLATION_ID, GITHUB_REPOSITORY_OWNER, and GITHUB_REPOSITORY_NAME in Vercel.",
+      });
+      return true;
+    },
+  );
+});
+
+test("reports when the configured GitHub branch does not exist", async () => {
+  const wrongBranch = dependencies();
+  wrongBranch.repository.branch = "missing";
+  wrongBranch.request = async <T>(route: string): Promise<T> => {
+    if (route.includes("/contents/public/articles?")) throw notFound();
+    if (route === "/repos/Atr1ck/Atr1ck.github.io") return { full_name: "Atr1ck/Atr1ck.github.io" } as T;
+    if (route === "/repos/Atr1ck/Atr1ck.github.io/branches/missing") throw notFound();
+    throw new Error(`Unexpected route: ${route}`);
+  };
+
+  await assert.rejects(
+    () => listAdminArticles(wrongBranch),
+    (error: unknown) => {
+      assert.ok(error instanceof HttpError);
+      assert.equal(error.status, 503);
+      assert.match(error.message, /branch missing was not found/);
+      assert.equal((error.details as { code: string }).code, "GITHUB_BRANCH_NOT_FOUND");
+      return true;
+    },
+  );
+});
+
+test("reports when the articles directory is missing from an accessible branch", async () => {
+  const missingDirectory = dependencies();
+  missingDirectory.request = async <T>(route: string): Promise<T> => {
+    if (route.includes("/contents/public/articles?")) throw notFound();
+    if (route === "/repos/Atr1ck/Atr1ck.github.io") return { full_name: "Atr1ck/Atr1ck.github.io" } as T;
+    if (route === "/repos/Atr1ck/Atr1ck.github.io/branches/main") return { name: "main" } as T;
+    throw new Error(`Unexpected route: ${route}`);
+  };
+
+  await assert.rejects(
+    () => listAdminArticles(missingDirectory),
+    (error: unknown) => {
+      assert.ok(error instanceof HttpError);
+      assert.equal(error.status, 502);
+      assert.match(error.message, /directory public\/articles was not found/);
+      assert.equal((error.details as { code: string }).code, "GITHUB_ARTICLES_DIRECTORY_NOT_FOUND");
+      return true;
+    },
+  );
 });

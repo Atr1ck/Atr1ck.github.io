@@ -21,6 +21,14 @@ interface RepositoryCommit {
   html_url: string;
 }
 
+interface RepositoryMetadata {
+  full_name: string;
+}
+
+interface RepositoryBranch {
+  name: string;
+}
+
 export interface AdminArticleSummary {
   title: string;
   slug: string;
@@ -47,6 +55,78 @@ export interface ArticleStoreDependencies {
 
 function defaultDependencies(): ArticleStoreDependencies {
   return { request: githubRequest, repository: getRepository() };
+}
+
+function isNotFound(error: unknown): error is HttpError {
+  return error instanceof HttpError && error.status === 404;
+}
+
+async function diagnoseArticlesDirectoryNotFound(
+  originalError: unknown,
+  dependencies: ArticleStoreDependencies,
+): Promise<never> {
+  if (!isNotFound(originalError)) throw originalError;
+
+  const { owner, repo, branch } = dependencies.repository;
+  const repositoryName = `${owner}/${repo}`;
+
+  try {
+    await dependencies.request<RepositoryMetadata>(`/repos/${owner}/${repo}`);
+  } catch (error) {
+    if (!isNotFound(error)) throw error;
+    throw new HttpError(
+      503,
+      `GitHub App installation cannot access ${repositoryName}`,
+      {
+        code: "GITHUB_APP_REPOSITORY_ACCESS_DENIED",
+        repository: repositoryName,
+        hint: "Install the GitHub App on this repository, then verify GITHUB_APP_INSTALLATION_ID, GITHUB_REPOSITORY_OWNER, and GITHUB_REPOSITORY_NAME in Vercel.",
+      },
+    );
+  }
+
+  try {
+    await dependencies.request<RepositoryBranch>(
+      `/repos/${owner}/${repo}/branches/${encodeURIComponent(branch)}`,
+    );
+  } catch (error) {
+    if (!isNotFound(error)) throw error;
+    throw new HttpError(
+      503,
+      `GitHub branch ${branch} was not found in ${repositoryName}`,
+      {
+        code: "GITHUB_BRANCH_NOT_FOUND",
+        repository: repositoryName,
+        branch,
+        hint: "Set GITHUB_BRANCH in Vercel to the branch that contains public/articles and redeploy.",
+      },
+    );
+  }
+
+  throw new HttpError(
+    502,
+    `GitHub directory public/articles was not found on ${repositoryName}@${branch}`,
+    {
+      code: "GITHUB_ARTICLES_DIRECTORY_NOT_FOUND",
+      repository: repositoryName,
+      branch,
+      path: "public/articles",
+      hint: "Verify that public/articles exists on the configured branch.",
+    },
+  );
+}
+
+async function listArticleEntries(
+  dependencies: ArticleStoreDependencies,
+): Promise<RepositoryEntry[]> {
+  const { owner, repo, branch } = dependencies.repository;
+  try {
+    return await dependencies.request<RepositoryEntry[]>(
+      `/repos/${owner}/${repo}/contents/public/articles?ref=${encodeURIComponent(branch)}`,
+    );
+  } catch (error) {
+    return diagnoseArticlesDirectoryNotFound(error, dependencies);
+  }
 }
 
 function normalizeDate(value: unknown, field: string, path: string): string {
@@ -96,9 +176,7 @@ export async function listAdminArticles(
   dependencies: ArticleStoreDependencies = defaultDependencies(),
 ): Promise<AdminArticleSummary[]> {
   const { owner, repo, branch } = dependencies.repository;
-  const entries = await dependencies.request<RepositoryEntry[]>(
-    `/repos/${owner}/${repo}/contents/public/articles?ref=${encodeURIComponent(branch)}`,
-  );
+  const entries = await listArticleEntries(dependencies);
   const markdownEntries = entries.filter((entry) => entry.type === "file" && entry.name.endsWith(".md"));
   const articles = await Promise.all(markdownEntries.map(async (entry) => {
     const article = parseAdminArticle(
