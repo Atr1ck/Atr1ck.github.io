@@ -52,7 +52,12 @@ export default function AdminDashboard() {
       </div>
 
       {query.isLoading && <p className="py-12 text-center text-base-content/60">正在读取 GitHub 内容...</p>}
-      {query.isError && <p className="py-12 text-center text-error">文章列表加载失败</p>}
+      {query.isError && (
+        <div className="py-12 text-center text-error">
+          <p>文章列表加载失败</p>
+          <p className="mt-2 text-sm">{query.error instanceof Error ? query.error.message : "未知错误"}</p>
+        </div>
+      )}
       {!query.isLoading && !query.isError && (
         <div className="mt-4 overflow-x-auto border border-base-300 bg-base-100">
           <table className="table table-sm min-w-[920px]">

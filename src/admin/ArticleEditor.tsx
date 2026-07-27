@@ -252,7 +252,14 @@ export default function ArticleEditor() {
   });
 
   if (!isNew && articleQuery.isLoading) return <main className="grid min-h-[60vh] place-items-center">正在读取文章...</main>;
-  if (!isNew && articleQuery.isError) return <main className="p-8 text-center text-error">文章读取失败或已发生权限变化</main>;
+  if (!isNew && articleQuery.isError) {
+    return (
+      <main className="p-8 text-center text-error">
+        <p>文章读取失败或已发生权限变化</p>
+        <p className="mt-2 text-sm">{articleQuery.error instanceof Error ? articleQuery.error.message : "未知错误"}</p>
+      </main>
+    );
+  }
 
   const update = <K extends keyof EditorFields>(key: K, value: EditorFields[K]) => {
     publishedSnapshot.current = null;

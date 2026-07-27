@@ -18,6 +18,7 @@ export default function AdminLayout() {
         <div>
           <h1 className="text-xl font-semibold">后台暂时无法连接</h1>
           <p className="mt-2 text-sm text-base-content/65">请确认 Vercel Serverless Functions 与环境变量已经配置。</p>
+          <p className="mt-2 text-sm text-error">{sessionQuery.error instanceof Error ? sessionQuery.error.message : "未知错误"}</p>
         </div>
       </main>
     );
