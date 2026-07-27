@@ -9,6 +9,12 @@ import type {
   PublishDependencies,
 } from "./article-publish.js";
 import { HttpError } from "./http.js";
+import {
+  MAX_MARKDOWN_BYTES,
+  MAX_PUBLISH_ASSET_BYTES,
+  MAX_PUBLISH_REQUEST_BYTES,
+  MAX_TOTAL_ASSET_BYTES,
+} from "../shared/publish-limits.js";
 
 const VALID_MARKDOWN = `---
 title: Example article
@@ -171,6 +177,66 @@ test("rejects duplicate asset paths", () => {
       assets: [asset, asset],
     }),
     (error) => error instanceof HttpError && error.status === 400,
+  );
+});
+
+test("keeps the serialized publish request below the Vercel function limit", () => {
+  assert.throws(
+    () => validatePublishRequest({
+      slug: "example-article",
+      markdown: VALID_MARKDOWN,
+      expectedSha: null,
+      assets: [],
+      padding: "x".repeat(MAX_PUBLISH_REQUEST_BYTES),
+    }),
+    (error) => error instanceof HttpError && error.status === 413 && error.message.includes("4MB"),
+  );
+});
+
+test("rejects oversized Markdown and selected image payloads", () => {
+  assert.throws(
+    () => validatePublishRequest({
+      slug: "example-article",
+      markdown: VALID_MARKDOWN.replace("Body.", "x".repeat(MAX_MARKDOWN_BYTES)),
+      expectedSha: null,
+      assets: [],
+    }),
+    (error) => error instanceof HttpError && error.status === 400 && error.message.includes("256KB"),
+  );
+
+  assert.throws(
+    () => validatePublishRequest({
+      slug: "example-article",
+      markdown: VALID_MARKDOWN,
+      expectedSha: null,
+      assets: [{
+        path: "public/articles/images/example-article/large.webp",
+        contentBase64: Buffer.alloc(MAX_PUBLISH_ASSET_BYTES + 1).toString("base64"),
+      }],
+    }),
+    (error) => error instanceof HttpError && error.status === 400 && error.message.includes("2.75MB"),
+  );
+});
+
+test("rejects an aggregate image payload above the production request budget", () => {
+  const assetBytes = Math.floor(MAX_TOTAL_ASSET_BYTES / 2) + 1;
+  assert.throws(
+    () => validatePublishRequest({
+      slug: "example-article",
+      markdown: VALID_MARKDOWN,
+      expectedSha: null,
+      assets: [
+        {
+          path: "public/articles/images/example-article/first.webp",
+          contentBase64: Buffer.alloc(assetBytes).toString("base64"),
+        },
+        {
+          path: "public/articles/images/example-article/second.webp",
+          contentBase64: Buffer.alloc(assetBytes).toString("base64"),
+        },
+      ],
+    }),
+    (error) => error instanceof HttpError && error.status === 400 && error.message.includes("Total asset size"),
   );
 });
 

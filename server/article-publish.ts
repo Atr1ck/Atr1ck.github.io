@@ -4,12 +4,15 @@ import remarkParse from "remark-parse";
 import { getRepository, githubRequest } from "./github.js";
 import type { GitHubRepository } from "./github.js";
 import { HttpError } from "./http.js";
+import {
+  MAX_MARKDOWN_BYTES,
+  MAX_PUBLISH_ASSET_BYTES,
+  MAX_PUBLISH_REQUEST_BYTES,
+  MAX_TOTAL_ASSET_BYTES,
+} from "../shared/publish-limits.js";
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SHA_PATTERN = /^[a-f0-9]{40}$/;
-const MAX_MARKDOWN_BYTES = 1024 * 1024;
-const MAX_ASSET_BYTES = 15 * 1024 * 1024;
-const MAX_TOTAL_ASSET_BYTES = 25 * 1024 * 1024;
 
 export interface PublishAsset {
   path: string;
@@ -90,6 +93,9 @@ function isArticleImagePath(path: string, slug: string, repositoryPath: boolean)
 
 export function validatePublishRequest(value: unknown): PublishRequest {
   if (!value || typeof value !== "object") throw new HttpError(400, "Invalid request body");
+  if (Buffer.byteLength(JSON.stringify(value), "utf8") > MAX_PUBLISH_REQUEST_BYTES) {
+    throw new HttpError(413, "Publish request must not exceed 4MB");
+  }
   const body = value as Partial<PublishRequest>;
   const slug = typeof body.slug === "string" ? body.slug.trim() : "";
   const markdown = typeof body.markdown === "string" ? body.markdown : "";
@@ -97,7 +103,7 @@ export function validatePublishRequest(value: unknown): PublishRequest {
 
   if (!SLUG_PATTERN.test(slug)) throw new HttpError(400, "Invalid article slug");
   if (!markdown || Buffer.byteLength(markdown, "utf8") > MAX_MARKDOWN_BYTES) {
-    throw new HttpError(400, "Markdown must be between 1 byte and 1MB");
+    throw new HttpError(400, "Markdown must be between 1 byte and 256KB");
   }
   if (body.expectedSha !== null && !SHA_PATTERN.test(body.expectedSha ?? "")) {
     throw new HttpError(400, "expectedSha must be null or a 40-character Git SHA");
@@ -156,8 +162,8 @@ export function validatePublishRequest(value: unknown): PublishRequest {
     assetPaths.add(asset.path);
 
     const bytes = Buffer.byteLength(asset.contentBase64, "base64");
-    if (bytes === 0 || bytes > MAX_ASSET_BYTES) {
-      throw new HttpError(400, `Asset ${index + 1} must be between 1 byte and 15MB`);
+    if (bytes === 0 || bytes > MAX_PUBLISH_ASSET_BYTES) {
+      throw new HttpError(400, `Asset ${index + 1} must be between 1 byte and 2.75MB`);
     }
     totalAssetBytes += bytes;
 
@@ -169,7 +175,7 @@ export function validatePublishRequest(value: unknown): PublishRequest {
   });
 
   if (totalAssetBytes > MAX_TOTAL_ASSET_BYTES) {
-    throw new HttpError(400, "Total asset size must not exceed 25MB");
+    throw new HttpError(400, "Total asset size must not exceed 2.75MB");
   }
 
   return {

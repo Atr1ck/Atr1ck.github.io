@@ -35,6 +35,8 @@
 
 Vercel Framework Preset 选择 Vite，构建命令使用 `npm run build`。`prebuild` 会生成并校验 `public/json/articles.json` 和旧标题别名映射。
 
+Vercel Function 的请求体上限为 4.5 MB，图片通过 JSON Base64 传输还会增加约三分之一体积。因此后台允许最多 15 MB 的原始图片进入浏览器压缩，但最终单张及单次提交图片均限制为 2.75 MB，完整发布请求限制为 4 MB。保留原图选项仍然可用；如果原图超过提交边界，界面会阻止发布并提示改用压缩版本。该限制依据 [Vercel 官方说明](https://vercel.com/kb/guide/how-to-bypass-vercel-body-size-limit-serverless-functions)。
+
 GitHub 写入分支必须与 Vercel Production Branch 完全一致。发布接口会通过 Vercel Project API 检查两者，不一致时拒绝写入。当前生产环境使用 `self`，后台发布会直接向 `self` 创建原子 commit，并由 Vercel 自动触发 Production Deployment。
 
 ## 4. 生产环境验收

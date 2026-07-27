@@ -20,6 +20,12 @@ import { processImage, selectedImagePayload } from "./image-processing";
 import type { ProcessedImage } from "./image-processing";
 import { useAdminContext } from "./context";
 import { parseFrontmatter, stringifyFrontmatter } from "./frontmatter";
+import {
+  MAX_MARKDOWN_BYTES,
+  MAX_PUBLISH_ASSET_BYTES,
+  MAX_PUBLISH_REQUEST_BYTES,
+  MAX_TOTAL_ASSET_BYTES,
+} from "../../shared/publish-limits";
 
 interface EditorFields {
   title: string;
@@ -203,30 +209,45 @@ export default function ArticleEditor() {
     }
   }, [fields.slug]);
 
-  const selectedImages = images.map((image) => ({ image, payload: selectedImagePayload(image) }));
+  const selectedImages = useMemo(
+    () => images.map((image) => ({ image, payload: selectedImagePayload(image) })),
+    [images],
+  );
   const totalImageBytes = selectedImages.reduce((total, item) => total + item.payload.size, 0);
+  const publishMarkdown = useMemo(
+    () => createMarkdown({ ...fields, updated: today() }),
+    [fields],
+  );
+  const publishPayload = useMemo(() => ({
+    slug: fields.slug,
+    markdown: publishMarkdown,
+    expectedSha,
+    assets: selectedImages.map(({ payload }) => ({
+      path: `public/articles/images/${fields.slug}/${payload.name}`,
+      contentBase64: payload.contentBase64,
+      preserveOriginal: payload.preserveOriginal,
+    })),
+  }), [expectedSha, fields.slug, publishMarkdown, selectedImages]);
+  const publishRequestBytes = useMemo(
+    () => new TextEncoder().encode(JSON.stringify(publishPayload)).byteLength,
+    [publishPayload],
+  );
   const errors = useMemo(() => {
     const result: string[] = [];
     if (!fields.title.trim()) result.push("标题不能为空");
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(fields.slug)) result.push("slug 只能包含小写字母、数字和连字符");
     if (!fields.summary.trim() || fields.summary.trim().length > 240) result.push("摘要长度必须为 1-240 字符");
     if (!fields.content.trim()) result.push("正文不能为空");
-    if (totalImageBytes > 25 * 1024 * 1024) result.push("单次发布图片总大小不能超过 25MB");
+    if (new TextEncoder().encode(publishMarkdown).byteLength > MAX_MARKDOWN_BYTES) result.push("Markdown 不能超过 256KB");
+    if (selectedImages.some(({ payload }) => payload.size > MAX_PUBLISH_ASSET_BYTES)) result.push("单张提交图片不能超过 2.75MB");
+    if (totalImageBytes > MAX_TOTAL_ASSET_BYTES) result.push("单次发布图片总大小不能超过 2.75MB");
+    if (publishRequestBytes > MAX_PUBLISH_REQUEST_BYTES) result.push("发布请求不能超过 4MB，请压缩或移除图片");
     if (fields.cover && !fields.cover.startsWith(`/articles/images/${fields.slug}/`)) result.push("封面必须使用当前文章图片目录");
     return result;
-  }, [fields, totalImageBytes]);
+  }, [fields, publishMarkdown, publishRequestBytes, selectedImages, totalImageBytes]);
 
   const publishMutation = useMutation({
-    mutationFn: () => publishArticle(session.csrfToken, {
-      slug: fields.slug,
-      markdown: createMarkdown({ ...fields, updated: today() }),
-      expectedSha,
-      assets: selectedImages.map(({ payload }) => ({
-        path: `public/articles/images/${fields.slug}/${payload.name}`,
-        contentBase64: payload.contentBase64,
-        preserveOriginal: payload.preserveOriginal,
-      })),
-    }),
+    mutationFn: () => publishArticle(session.csrfToken, publishPayload),
     onSuccess: async (result) => {
       publishedSnapshot.current = JSON.stringify(fields);
       localStorage.removeItem(draftKey);
@@ -367,14 +388,14 @@ export default function ArticleEditor() {
       </section>
 
       <section className="mt-5 border-t border-base-300 pt-5">
-        <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-semibold">文章图片</h2><p className="mt-1 text-xs text-base-content/55">本次提交 {images.length} 张，{formatBytes(totalImageBytes)} / 25 MB</p></div><label className="btn btn-ghost btn-sm rounded-md"><ImagePlus className="h-4 w-4" /> 添加图片<input className="hidden" type="file" accept="image/*" multiple onChange={(event) => { void addFiles(Array.from(event.target.files || [])); event.target.value = ""; }} /></label></div>
+        <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="font-semibold">文章图片</h2><p className="mt-1 text-xs text-base-content/55">图片 {formatBytes(totalImageBytes)} / 2.75 MB · 请求 {formatBytes(publishRequestBytes)} / 4 MB</p></div><label className="btn btn-ghost btn-sm rounded-md"><ImagePlus className="h-4 w-4" /> 添加图片<input className="hidden" type="file" accept="image/*" multiple onChange={(event) => { void addFiles(Array.from(event.target.files || [])); event.target.value = ""; }} /></label></div>
         <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
           {images.map((image) => {
             const payload = selectedImagePayload(image);
             const publicPath = fields.slug ? `/articles/images/${fields.slug}/${payload.name}` : "";
             return <div key={image.id} className="flex gap-3 border border-base-300 bg-base-100 p-3">
               <img className="h-20 w-20 shrink-0 object-cover" src={image.previewUrl} alt="" />
-              <div className="min-w-0 grow"><p className="truncate text-sm font-medium" title={payload.name}>{payload.name}</p><p className="mt-1 text-xs text-base-content/55">{formatBytes(image.originalSize)} → {formatBytes(payload.size)}</p>{image.warning && <p className="mt-1 text-xs text-warning">{image.warning}</p>}<div className="mt-2 flex flex-wrap items-center gap-2"><label className="flex items-center gap-1 text-xs"><input type="checkbox" className="checkbox checkbox-xs" checked={image.preserveOriginal} disabled={!image.compressedBase64} onChange={(event) => toggleOriginal(image, event.target.checked)} />保留原图</label><button className="btn btn-ghost btn-xs rounded" disabled={!publicPath} onClick={() => update("cover", publicPath)}>{fields.cover === publicPath ? <Check className="h-3 w-3" /> : null}封面</button><button className="btn btn-ghost btn-xs rounded" title="移除" onClick={() => removeImage(image)}><Trash2 className="h-3 w-3" /></button></div></div>
+              <div className="min-w-0 grow"><p className="truncate text-sm font-medium" title={payload.name}>{payload.name}</p><p className="mt-1 text-xs text-base-content/55">{formatBytes(image.originalSize)} → {formatBytes(payload.size)}</p>{image.warning && <p className="mt-1 text-xs text-warning">{image.warning}</p>}{payload.size > MAX_PUBLISH_ASSET_BYTES && <p className="mt-1 text-xs text-error">当前版本超过 2.75MB，无法经 Vercel 发布</p>}<div className="mt-2 flex flex-wrap items-center gap-2"><label className="flex items-center gap-1 text-xs"><input type="checkbox" className="checkbox checkbox-xs" checked={image.preserveOriginal} disabled={!image.compressedBase64} onChange={(event) => toggleOriginal(image, event.target.checked)} />保留原图</label><button className="btn btn-ghost btn-xs rounded" disabled={!publicPath} onClick={() => update("cover", publicPath)}>{fields.cover === publicPath ? <Check className="h-3 w-3" /> : null}封面</button><button className="btn btn-ghost btn-xs rounded" title="移除" onClick={() => removeImage(image)}><Trash2 className="h-3 w-3" /></button></div></div>
             </div>;
           })}
           {images.length === 0 && <div className="border border-dashed border-base-300 px-4 py-8 text-center text-sm text-base-content/50 sm:col-span-2 xl:col-span-3" onDrop={(event) => { event.preventDefault(); void addFiles(Array.from(event.dataTransfer.files)); }} onDragOver={(event) => event.preventDefault()}>拖拽、粘贴或选择图片</div>}
@@ -407,7 +428,7 @@ export default function ArticleEditor() {
         </section>
       )}
 
-      {confirming && <div className="fixed inset-0 z-[200] grid place-items-center bg-black/55 p-4" role="dialog" aria-modal="true"><div className="w-full max-w-md rounded-md bg-base-100 p-6 shadow-xl"><h2 className="text-lg font-semibold">确认{fields.published ? "发布" : "下线"}</h2><dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm"><dt className="text-base-content/55">文章</dt><dd>{fields.title}</dd><dt className="text-base-content/55">Slug</dt><dd className="font-mono">{fields.slug}</dd><dt className="text-base-content/55">图片</dt><dd>{images.length} 张 / {formatBytes(totalImageBytes)}</dd><dt className="text-base-content/55">提交</dt><dd>直接写入 main</dd></dl>{images.some((image) => image.preserveOriginal) && <p className="mt-4 text-sm text-warning">包含未压缩原图，请确认体积可接受。</p>}<div className="mt-6 flex justify-end gap-2"><button className="btn btn-ghost btn-sm rounded-md" onClick={() => setConfirming(false)}>取消</button><button className="btn btn-primary btn-sm rounded-md" onClick={() => publishMutation.mutate()}>确认提交</button></div></div></div>}
+      {confirming && <div className="fixed inset-0 z-[200] grid place-items-center bg-black/55 p-4" role="dialog" aria-modal="true"><div className="w-full max-w-md rounded-md bg-base-100 p-6 shadow-xl"><h2 className="text-lg font-semibold">确认{fields.published ? "发布" : "下线"}</h2><dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm"><dt className="text-base-content/55">文章</dt><dd>{fields.title}</dd><dt className="text-base-content/55">Slug</dt><dd className="font-mono">{fields.slug}</dd><dt className="text-base-content/55">图片</dt><dd>{images.length} 张 / {formatBytes(totalImageBytes)}</dd><dt className="text-base-content/55">请求体</dt><dd>{formatBytes(publishRequestBytes)}</dd><dt className="text-base-content/55">提交</dt><dd>直接写入生产分支</dd></dl>{images.some((image) => image.preserveOriginal) && <p className="mt-4 text-sm text-warning">包含未压缩原图，请确认体积可接受。</p>}<div className="mt-6 flex justify-end gap-2"><button className="btn btn-ghost btn-sm rounded-md" onClick={() => setConfirming(false)}>取消</button><button className="btn btn-primary btn-sm rounded-md" onClick={() => publishMutation.mutate()}>确认提交</button></div></div></div>}
     </main>
   );
 }

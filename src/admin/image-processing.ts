@@ -1,4 +1,5 @@
-const MAX_IMAGE_BYTES = 15 * 1024 * 1024;
+import { MAX_SOURCE_IMAGE_BYTES } from "../../shared/publish-limits";
+
 const MAX_DIMENSION = 2400;
 const WEBP_QUALITY = 0.82;
 const COMPRESSIBLE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
@@ -75,7 +76,7 @@ async function compressToWebp(file: File): Promise<Blob> {
 
 export async function processImage(file: File): Promise<ProcessedImage> {
   if (!file.type.startsWith("image/")) throw new Error(`${file.name} 不是图片`);
-  if (file.size === 0 || file.size > MAX_IMAGE_BYTES) throw new Error(`${file.name} 必须小于 15MB`);
+  if (file.size === 0 || file.size > MAX_SOURCE_IMAGE_BYTES) throw new Error(`${file.name} 必须小于 15MB`);
   if (file.type === "image/svg+xml") throw new Error("出于安全原因不支持 SVG，请转换为 PNG 或 WebP");
 
   const originalDataUrl = await readAsDataUrl(file);
