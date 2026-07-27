@@ -1,8 +1,17 @@
 interface Article {
-    content : string,
-    date : string,
-    tags : string[],
-    title : string
-  }
+  title: string;
+  slug: string;
+  date: string;
+  updated: string;
+  tags: string[];
+  summary: string;
+  cover: string | null;
+  published: boolean;
+  content: string;
+  legacyTitles: string[];
+}
 
-export type { Article };
+type ArticleIndex = Record<string, Article>;
+type ArticleAliases = Record<string, string>;
+
+export type { Article, ArticleAliases, ArticleIndex };

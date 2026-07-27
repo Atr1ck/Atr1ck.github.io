@@ -5,7 +5,7 @@ description = "Default template for PDM package"
 authors = [
     {name = "Atr1ck", email = "3126670240@qq.com"},
 ]
-dependencies = ["ffmpeg-python>=0.2.0", "python-frontmatter>=1.1.0"]
+dependencies = ["ffmpeg-python>=0.2.0"]
 requires-python = "==3.12.*"
 readme = "README.md"
 license = {text = "MIT"}

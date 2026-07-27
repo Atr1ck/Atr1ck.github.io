@@ -1,49 +1,53 @@
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import Loading from "../Load/Load";
-import type { Article } from "../../types/article";
+import type { ArticleIndex } from "../../types/article";
 
 
 export default function ArticleList(){
     const navigate = useNavigate();
 
-    const { isLoading, data } = useQuery<Record<string, Article>>({
+    const { isLoading, isError, data } = useQuery<ArticleIndex>({
       queryKey:["articles"],
       queryFn: async () => {
-        const articles = await fetch("/json/articles.json")
-        .then((response) => response.json());
-        return articles;
+        const response = await fetch("/json/articles.json");
+        if (!response.ok) throw new Error(`Failed to load articles: ${response.status}`);
+        return response.json();
       }
     })
 
     if (isLoading) {
       return <Loading />
     }
+
+    if (isError) {
+      return <div className="p-8 text-center">文章列表加载失败</div>;
+    }
   
     return (
       <div className="flex flex-col items-center">
-      {Object.entries(data || {}).map(([title, article], index) => (
+      {Object.values(data || {}).map((article) => (
         <div 
-          className="flex flex-col sm:flex-row relative p-4 sm:p-6 w-[calc(100%_-_1rem)] max-w-4xl min-h-40 sm:min-h-48 my-4 sm:my-5 rounded-lg border border-base-300/70 shadow-sm bg-base-100/95 text-base-content hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer"
-          key={index}
-          onClick={() => navigate(`/articles/${title}`)}
+          className="flex flex-col p-4 sm:p-6 w-[calc(100%_-_1rem)] max-w-4xl my-3 sm:my-4 rounded-lg border border-base-300/70 shadow-sm bg-base-100/95 text-base-content hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+          key={article.slug}
+          onClick={() => navigate(`/articles/${article.slug}`)}
         >
-          <p className="w-full sm:w-9/12 sm:border-r border-base-300 text-xl sm:text-3xl text-base-content font-semibold pb-2 sm:pb-0 pr-3">
-            {title}
-          </p>
-          
-          <p className="absolute text-xs sm:text-sm text-base-content/60 bottom-3 sm:bottom-5 left-4 sm:left-6">
-            {article.date}
-          </p>
-          
-          <div className="flex flex-col pl-0 sm:pl-4 pt-2 sm:pt-0">
-            {article.tags.map((tag: string, index: number) => (
-              <p className="text-sm sm:text-base text-base-content/70 font-mono hover:text-primary transition-colors duration-300 cursor-default"
-                key={index}
+          <div className="w-full">
+            <h2 className="text-xl sm:text-3xl text-base-content font-semibold">{article.title}</h2>
+            <p className="mt-2 text-sm sm:text-base text-base-content/70 line-clamp-2">{article.summary}</p>
+          </div>
+
+          <div className="mt-5 flex min-h-6 items-end justify-between gap-3">
+            <time className="shrink-0 text-xs sm:text-sm text-base-content/60" dateTime={article.date}>{article.date}</time>
+            <div className="flex flex-wrap justify-end gap-x-2 gap-y-1">
+            {article.tags.map((tag) => (
+              <span className="text-xs sm:text-sm text-base-content/70 font-mono hover:text-primary transition-colors duration-300 cursor-default"
+                key={tag}
               >
                 #{tag}
-              </p>
+              </span>
             ))}
+            </div>
           </div>
         </div>
       ))}

@@ -1,11 +1,18 @@
 ---
 title: 关于消除可选链
-date: 2025-12-20
+slug: optional-chaining-bundle-size
+date: '2025-12-20'
+updated: '2026-07-24'
 tags:
   - React
   - Typescript
+summary: >-
+  关于消除可选链
+  读AntDesign源码的时候发现一个很有意思的现象——开发人员刻意使用全局引用的EmptyObject，即{}来消除?.可选链，官方给的注释是reduce
+  bundle size，所以查了一下 可选链会增加bundle体积...
+cover: null
+published: true
 ---
-
 # 关于消除可选链
 
 读AntDesign源码的时候发现一个很有意思的现象——开发人员刻意使用全局引用的**Empty_Object**，即`{}`来消除?.可选链，官方给的注释是*reduce bundle size*，所以查了一下

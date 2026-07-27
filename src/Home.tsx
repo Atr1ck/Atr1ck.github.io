@@ -1,4 +1,3 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { Outlet, useNavigate } from "react-router-dom"
 import MusicPlayer from "./components/MusicPlayer/Musicplayer";
 import { GithubOutlined } from "@ant-design/icons";
@@ -42,9 +41,7 @@ export default function Home() {
       <TopNavi></TopNavi>
       <MusicPlayer></MusicPlayer>
       <div className="flex flex-col grow w-full md:w-2/3">
-        <QueryClientProvider client={new QueryClient} >
         <Outlet />
-        </QueryClientProvider>
       </div>
     </div>
   )
