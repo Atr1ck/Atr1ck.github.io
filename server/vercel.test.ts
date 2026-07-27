@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { getDeploymentForCommit, redeploy } from "./vercel.js";
+import { assertProductionBranch, getDeploymentForCommit, redeploy } from "./vercel.js";
 import { HttpError } from "./http.js";
 
 process.env.VERCEL_PROJECT_ID = "prj_test";
@@ -9,7 +9,9 @@ process.env.VERCEL_PROJECT_NAME = "atr1ck-blog";
 test("returns the deployment matching the exact commit", async () => {
   const sha = "a".repeat(40);
   const result = await getDeploymentForCommit(sha, async <T>(path: string): Promise<T> => {
-    assert.match(path, /meta-githubCommitSha=/);
+    assert.match(path, /^\/v7\/deployments\?/);
+    assert.match(path, /sha=a{40}/);
+    assert.match(path, /target=production/);
     return {
       deployments: [{
         uid: "dpl_test",
@@ -33,7 +35,7 @@ test("returns the deployment matching the exact commit", async () => {
 test("includes a bounded stderr summary for failed deployments", async () => {
   const sha = "b".repeat(40);
   const result = await getDeploymentForCommit(sha, async <T>(path: string): Promise<T> => {
-    if (path.startsWith("/v6/deployments")) {
+    if (path.startsWith("/v7/deployments")) {
       return { deployments: [{
         uid: "dpl_failed",
         name: "blog",
@@ -43,7 +45,10 @@ test("includes a bounded stderr summary for failed deployments", async () => {
         meta: { githubCommitSha: sha },
       }] } as T;
     }
-    return [{ type: "stdout", text: "ignore" }, { type: "stderr", text: "Build failed" }] as T;
+    return [
+      { type: "stdout", text: "ignore" },
+      { type: "stderr", payload: { text: "Build failed" } },
+    ] as T;
   });
 
   assert.equal(result.found, true);
@@ -68,4 +73,20 @@ test("requests a production redeployment", async () => {
     return { uid: "dpl_new", state: "QUEUED", url: "new.vercel.app" } as T;
   });
   assert.equal(result.deploymentId, "dpl_new");
+});
+
+test("accepts a matching Vercel production branch", async () => {
+  await assertProductionBranch("main", async <T>(path: string): Promise<T> => {
+    assert.equal(path, "/v9/projects/prj_test");
+    return { link: { productionBranch: "main" } } as T;
+  });
+});
+
+test("blocks publishing when the Vercel production branch differs", async () => {
+  await assert.rejects(
+    assertProductionBranch("main", async <T>(): Promise<T> => ({
+      link: { productionBranch: "self" },
+    }) as T),
+    (error) => error instanceof HttpError && error.status === 503 && error.message.includes("self"),
+  );
 });

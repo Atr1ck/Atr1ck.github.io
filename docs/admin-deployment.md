@@ -35,6 +35,8 @@ Configure every variable from `.env.example` in the Production environment:
 
 Use the Vite framework preset and `npm run build`. The `prebuild` hook generates and validates `public/json/articles.json` and the legacy-title alias map.
 
+The GitHub write branch and the Vercel Production Branch must be identical. The publish endpoint checks this through the Vercel Project API and refuses to write when they differ. At the time this system was implemented, the repository default branch and Vercel Production Branch were still `self`, while the confirmed publication target was `main`. Before enabling `/admin`, fast-forward `main` to the tested application commit and change the Vercel Production Branch to `main`.
+
 ## 4. Production verification
 
 After deploying the environment configuration:
