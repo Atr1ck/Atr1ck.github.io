@@ -7,6 +7,14 @@ interface GitHubErrorBody {
   documentation_url?: string;
 }
 
+interface InstallationAuthentication {
+  token: string;
+  expiresAt: string;
+  permissions: Record<string, string | undefined>;
+}
+
+let cachedInstallation: (InstallationAuthentication & { cacheKey: string }) | null = null;
+
 export interface GitHubRepository {
   owner: string;
   repo: string;
@@ -21,14 +29,68 @@ export function getRepository(): GitHubRepository {
   };
 }
 
-async function getInstallationToken(): Promise<string> {
-  const auth = createAppAuth({
-    appId: requireEnv("GITHUB_APP_ID"),
-    privateKey: requireEnv("GITHUB_APP_PRIVATE_KEY").replace(/\\n/g, "\n"),
-    installationId: requireEnv("GITHUB_APP_INSTALLATION_ID"),
+export function assertInstallationPermissions(
+  permissions: Record<string, string | undefined>,
+): void {
+  if (permissions.contents === "write") return;
+  throw new HttpError(
+    503,
+    "GitHub App installation must grant Contents: Read and write",
+    {
+      code: "GITHUB_APP_CONTENTS_PERMISSION_REQUIRED",
+      granted: permissions.contents || "none",
+      hint: "Set Repository permissions > Contents to Read and write in the GitHub App, accept the updated permission for the installation, then redeploy Vercel.",
+    },
+  );
+}
+
+function authenticationError(error: unknown): HttpError {
+  const status = error && typeof error === "object" && "status" in error
+    ? Number(error.status)
+    : 0;
+  if (status === 404) {
+    return new HttpError(503, "GitHub App installation was not found", {
+      code: "GITHUB_APP_INSTALLATION_NOT_FOUND",
+      hint: "Verify that GITHUB_APP_INSTALLATION_ID is the numeric ID from the installed GitHub App URL, not GITHUB_APP_ID.",
+    });
+  }
+  if (status === 401 || status === 403) {
+    return new HttpError(503, "GitHub App credentials were rejected", {
+      code: "GITHUB_APP_CREDENTIALS_REJECTED",
+      hint: "Verify GITHUB_APP_ID and the complete GITHUB_APP_PRIVATE_KEY in Vercel.",
+    });
+  }
+  return new HttpError(502, "Unable to create a GitHub App installation token", {
+    code: "GITHUB_APP_AUTHENTICATION_FAILED",
   });
-  const authentication = await auth({ type: "installation" });
-  return authentication.token;
+}
+
+async function getInstallationToken(): Promise<string> {
+  const appId = requireEnv("GITHUB_APP_ID");
+  const privateKey = requireEnv("GITHUB_APP_PRIVATE_KEY").replace(/\\n/g, "\n");
+  const installationId = requireEnv("GITHUB_APP_INSTALLATION_ID");
+  const cacheKey = `${appId}:${installationId}`;
+  if (
+    cachedInstallation?.cacheKey === cacheKey &&
+    Date.parse(cachedInstallation.expiresAt) - Date.now() > 60_000
+  ) {
+    return cachedInstallation.token;
+  }
+
+  const auth = createAppAuth({
+    appId,
+    privateKey,
+    installationId,
+  });
+  try {
+    const authentication = await auth({ type: "installation" }) as InstallationAuthentication;
+    assertInstallationPermissions(authentication.permissions);
+    cachedInstallation = { ...authentication, cacheKey };
+    return authentication.token;
+  } catch (error) {
+    if (error instanceof HttpError) throw error;
+    throw authenticationError(error);
+  }
 }
 
 export async function githubRequest<T>(

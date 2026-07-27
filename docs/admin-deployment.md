@@ -39,6 +39,16 @@ Vercel Function 的请求体上限为 4.5 MB，图片通过 JSON Base64 传输�
 
 GitHub 写入分支必须与 Vercel Production Branch 完全一致。发布接口会通过 Vercel Project API 检查两者，不一致时拒绝写入。当前生产环境使用 `self`，后台发布会直接向 `self` 创建原子 commit，并由 Vercel 自动触发 Production Deployment。
 
+如果后台无法读取文章，接口会返回不包含凭据的诊断代码：
+
+- `GITHUB_APP_INSTALLATION_NOT_FOUND`：`GITHUB_APP_INSTALLATION_ID` 不是当前 App 的有效安装 ID。
+- `GITHUB_APP_CONTENTS_PERMISSION_REQUIRED`：App 没有 `Contents: Read and write`，或修改权限后尚未在安装页面接受更新。
+- `GITHUB_APP_REPOSITORY_ACCESS_DENIED`：该安装没有选择 `Atr1ck/Atr1ck.github.io` 仓库，或仓库环境变量填写错误。
+- `GITHUB_BRANCH_NOT_FOUND`：`GITHUB_BRANCH` 指向的分支不存在。
+- `GITHUB_ARTICLES_DIRECTORY_NOT_FOUND`：目标分支没有 `public/articles` 目录。
+
+GitHub 修改 App 权限后，必须前往 GitHub App 的安装配置页接受新的权限；只在 App 设置页保存权限并不会自动更新现有安装。修改 Vercel 环境变量后需要重新部署 Production。
+
 ## 4. 生产环境验收
 
 部署并配置环境变量后，依次完成以下检查：

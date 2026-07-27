@@ -14,11 +14,18 @@ export class ApiError extends Error {
 
 async function requestJson<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, init);
-  const body = await response.json().catch(() => null) as { error?: string } | T | null;
+  const body = await response.json().catch(() => null) as {
+    error?: string;
+    details?: { hint?: string };
+  } | T | null;
   if (!response.ok) {
-    throw new ApiError(response.status, body && typeof body === "object" && "error" in body
+    const message = body && typeof body === "object" && "error" in body
       ? body.error || "请求失败"
-      : "请求失败");
+      : "请求失败";
+    const hint = body && typeof body === "object" && "details" in body
+      ? body.details?.hint
+      : undefined;
+    throw new ApiError(response.status, hint ? `${message}：${hint}` : message);
   }
   return body as T;
 }
