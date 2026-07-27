@@ -1,14 +1,12 @@
 ---
 title: 播种之谣短评
 slug: seed-of-song-review
-date: '2024-12-22'
-updated: '2025-03-05'
+date: 2024-12-22
+updated: 2026-07-27
 tags:
   - visual novel
   - comment
-summary: >-
-  播种之谣短评 很庆幸能在年末玩到这么一步优秀治愈的作品。 《播种之谣》，全年龄亲情剧情佳作，实实在在的体现了什么叫做Visual
-  Novel(视觉小说)，258张不含差分的cg，提供了完美的视觉体验，近乎把所有能画的都画了，该说不愧是ANI...
+summary: ""
 cover: null
 published: true
 ---
