@@ -236,7 +236,7 @@ export default function ArticleEditor() {
     const result: string[] = [];
     if (!fields.title.trim()) result.push("标题不能为空");
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(fields.slug)) result.push("slug 只能包含小写字母、数字和连字符");
-    if (!fields.summary.trim() || fields.summary.trim().length > 240) result.push("摘要长度必须为 1-240 字符");
+    if (fields.summary.trim().length > 240) result.push("摘要不能超过 240 字符");
     if (!fields.content.trim()) result.push("正文不能为空");
     if (new TextEncoder().encode(publishMarkdown).byteLength > MAX_MARKDOWN_BYTES) result.push("Markdown 不能超过 256KB");
     if (selectedImages.some(({ payload }) => payload.size > MAX_PUBLISH_ASSET_BYTES)) result.push("单张提交图片不能超过 2.75MB");
@@ -364,7 +364,7 @@ export default function ArticleEditor() {
         <label className="admin-field"><span>发布日期</span><input className="input input-sm w-full rounded-md" type="date" value={fields.date} onChange={(event) => update("date", event.target.value)} /></label>
         <label className="admin-field"><span>可见性</span><span className="flex h-8 items-center gap-2"><input className="toggle toggle-sm" type="checkbox" checked={fields.published} onChange={(event) => update("published", event.target.checked)} />{fields.published ? "公开" : "下线"}</span></label>
         <label className="admin-field md:col-span-2"><span>标签（逗号分隔）</span><input className="input input-sm w-full rounded-md" value={fields.tags} onChange={(event) => update("tags", event.target.value)} /></label>
-        <label className="admin-field md:col-span-2"><span>摘要 <small>{fields.summary.length}/240</small></span><input className="input input-sm w-full rounded-md" maxLength={240} value={fields.summary} onChange={(event) => update("summary", event.target.value)} /></label>
+        <label className="admin-field md:col-span-2"><span>摘要（可选） <small>{fields.summary.length}/240</small></span><input className="input input-sm w-full rounded-md" maxLength={240} value={fields.summary} onChange={(event) => update("summary", event.target.value)} /></label>
         <label className="admin-field md:col-span-2 xl:col-span-4"><span>封面路径（可选）</span><input className="input input-sm w-full rounded-md font-mono" placeholder={`/articles/images/${fields.slug || "slug"}/cover.webp`} value={fields.cover} onChange={(event) => update("cover", event.target.value)} /></label>
       </section>
 

@@ -51,6 +51,44 @@ Body.`;
   assert.equal(result.value.published, true);
 });
 
+test("accepts an omitted or empty optional summary", () => {
+  const source = `---
+title: Example
+slug: example-post
+date: 2026-07-27
+updated: 2026-07-27
+tags: []
+published: true
+---
+
+Body.`;
+
+  const omitted = validateArticle(parseArticle(source, "/tmp/omitted.md"));
+  const empty = validateArticle(parseArticle(source.replace("published: true", "summary: ''\npublished: true"), "/tmp/empty.md"));
+
+  assert.deepEqual(omitted.errors, []);
+  assert.equal(omitted.value.summary, "");
+  assert.deepEqual(empty.errors, []);
+  assert.equal(empty.value.summary, "");
+});
+
+test("rejects a non-string optional summary", () => {
+  const source = `---
+title: Example
+slug: example-post
+date: 2026-07-27
+updated: 2026-07-27
+tags: []
+summary: 123
+published: true
+---
+
+Body.`;
+  const result = validateArticle(parseArticle(source, "/tmp/example.md"));
+
+  assert.ok(result.errors.some((error) => error.includes("summary must be a string")));
+});
+
 test("rejects unsafe slugs and cover paths", () => {
   const source = `---
 title: Example

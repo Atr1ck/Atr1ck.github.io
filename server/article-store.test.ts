@@ -20,7 +20,7 @@ published: false
 
 Draft body.`;
 
-function dependencies(): ArticleStoreDependencies {
+function dependencies(markdown = MARKDOWN): ArticleStoreDependencies {
   return {
     repository: { owner: "Atr1ck", repo: "Atr1ck.github.io", branch: "main" },
     request: async <T>(route: string): Promise<T> => {
@@ -34,7 +34,7 @@ function dependencies(): ArticleStoreDependencies {
         return { name: "hidden-article.md", path: "public/articles/hidden-article.md", sha: "a".repeat(40), type: "file" } as T;
       }
       if (route.endsWith(`/git/blobs/${"a".repeat(40)}`)) {
-        return { encoding: "base64", content: Buffer.from(MARKDOWN).toString("base64") } as T;
+        return { encoding: "base64", content: Buffer.from(markdown).toString("base64") } as T;
       }
       if (route.includes("/commits?path=")) {
         return [{ sha: "b".repeat(40), html_url: "https://github.com/commit/test" }] as T;
@@ -57,6 +57,14 @@ test("reads a slug article and returns editable Markdown", async () => {
   const article = await readAdminArticle("hidden-article", dependencies());
   assert.equal(article.slug, "hidden-article");
   assert.equal(article.markdown, MARKDOWN);
+});
+
+test("normalizes an omitted optional summary to an empty string", async () => {
+  const markdown = MARKDOWN.replace("summary: Hidden article summary.\n", "");
+  const article = await readAdminArticle("hidden-article", dependencies(markdown));
+
+  assert.equal(article.summary, "");
+  assert.equal(article.markdown, markdown);
 });
 
 function notFound(): HttpError {

@@ -142,7 +142,8 @@ function parseAdminArticle(markdown: string, entry: RepositoryEntry): AdminArtic
   const title = typeof parsed.data.title === "string" ? parsed.data.title.trim() : "";
   const slug = typeof parsed.data.slug === "string" ? parsed.data.slug.trim() : "";
   const summary = typeof parsed.data.summary === "string" ? parsed.data.summary.trim() : "";
-  if (!title || !slug || !summary || typeof parsed.data.published !== "boolean") {
+  const invalidSummary = parsed.data.summary != null && typeof parsed.data.summary !== "string";
+  if (!title || !slug || invalidSummary || typeof parsed.data.published !== "boolean") {
     throw new HttpError(502, `${entry.path} has incomplete frontmatter`);
   }
 

@@ -46,6 +46,39 @@ test("validates a complete publish request", () => {
   assert.equal(result.assets.length, 1);
 });
 
+test("accepts an omitted or empty optional summary", () => {
+  const withoutSummary = VALID_MARKDOWN.replace("summary: A valid article summary.\n", "");
+  const emptySummary = VALID_MARKDOWN.replace("summary: A valid article summary.", "summary: ''");
+
+  for (const markdown of [withoutSummary, emptySummary]) {
+    assert.doesNotThrow(() => validatePublishRequest({
+      slug: "example-article",
+      markdown,
+      expectedSha: null,
+      assets: [],
+    }));
+  }
+});
+
+test("rejects a non-string or oversized optional summary", () => {
+  const invalidSummaries = [
+    VALID_MARKDOWN.replace("summary: A valid article summary.", "summary: 123"),
+    VALID_MARKDOWN.replace("summary: A valid article summary.", `summary: ${"x".repeat(241)}`),
+  ];
+
+  for (const markdown of invalidSummaries) {
+    assert.throws(
+      () => validatePublishRequest({
+        slug: "example-article",
+        markdown,
+        expectedSha: null,
+        assets: [],
+      }),
+      (error) => error instanceof HttpError && error.status === 400,
+    );
+  }
+});
+
 test("rejects mismatched slugs and unsafe asset paths", () => {
   assert.throws(
     () => validatePublishRequest({

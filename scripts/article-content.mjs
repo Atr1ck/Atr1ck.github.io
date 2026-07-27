@@ -76,7 +76,9 @@ export function validateArticle(article) {
   if (typeof data.published !== "boolean") {
     errors.push(`${fileName}: published must be true or false`);
   }
-  if (!summary) errors.push(`${fileName}: summary is required`);
+  if (data.summary != null && typeof data.summary !== "string") {
+    errors.push(`${fileName}: summary must be a string`);
+  }
   if (summary.length > 240) errors.push(`${fileName}: summary must not exceed 240 characters`);
   if (!Array.isArray(data.tags)) errors.push(`${fileName}: tags must be an array`);
   if (!content) errors.push(`${fileName}: article content is empty`);

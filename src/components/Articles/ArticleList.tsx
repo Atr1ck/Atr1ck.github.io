@@ -34,7 +34,7 @@ export default function ArticleList(){
         >
           <div className="w-full">
             <h2 className="text-xl sm:text-3xl text-base-content font-semibold">{article.title}</h2>
-            <p className="mt-2 text-sm sm:text-base text-base-content/70 line-clamp-2">{article.summary}</p>
+            {article.summary && <p className="mt-2 text-sm sm:text-base text-base-content/70 line-clamp-2">{article.summary}</p>}
           </div>
 
           <div className="mt-5 flex min-h-6 items-end justify-between gap-3">

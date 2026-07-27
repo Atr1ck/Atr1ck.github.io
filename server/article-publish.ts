@@ -117,10 +117,10 @@ export function validatePublishRequest(value: unknown): PublishRequest {
   if (typeof parsed.data.published !== "boolean") {
     throw new HttpError(400, "Frontmatter published must be true or false");
   }
-  if (typeof parsed.data.summary !== "string" || !parsed.data.summary.trim()) {
-    throw new HttpError(400, "Frontmatter summary is required");
+  if (parsed.data.summary != null && typeof parsed.data.summary !== "string") {
+    throw new HttpError(400, "Frontmatter summary must be a string");
   }
-  if (parsed.data.summary.trim().length > 240) {
+  if (typeof parsed.data.summary === "string" && parsed.data.summary.trim().length > 240) {
     throw new HttpError(400, "Frontmatter summary must not exceed 240 characters");
   }
   if (!Array.isArray(parsed.data.tags)) throw new HttpError(400, "Frontmatter tags must be an array");
