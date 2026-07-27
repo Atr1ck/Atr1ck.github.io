@@ -3,6 +3,8 @@ import test from "node:test";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import publishHandler from "../api/articles/publish.js";
 import listHandler from "../api/articles.js";
+import articleHandler from "../api/article.js";
+import deploymentHandler from "../api/deployment.js";
 import redeployHandler from "../api/deployments/redeploy.js";
 import logoutHandler from "../api/auth/logout.js";
 import callbackHandler from "../api/auth/callback.js";
@@ -108,6 +110,26 @@ for (const [name, handler] of writeHandlers) {
 test("article listing requires authentication before GitHub access", async () => {
   const { response, vercelResponse } = responsePair();
   await listHandler({ method: "GET", headers: {} } as VercelRequest, vercelResponse);
+  assert.equal(response.statusCode, 401);
+});
+
+test("article detail requires authentication before GitHub access", async () => {
+  const { response, vercelResponse } = responsePair();
+  await articleHandler({
+    method: "GET",
+    headers: {},
+    query: { slug: "example" },
+  } as unknown as VercelRequest, vercelResponse);
+  assert.equal(response.statusCode, 401);
+});
+
+test("deployment status requires authentication before Vercel access", async () => {
+  const { response, vercelResponse } = responsePair();
+  await deploymentHandler({
+    method: "GET",
+    headers: {},
+    query: { commitSha: "a".repeat(40) },
+  } as unknown as VercelRequest, vercelResponse);
   assert.equal(response.statusCode, 401);
 });
 

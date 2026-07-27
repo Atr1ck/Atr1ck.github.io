@@ -58,16 +58,15 @@ const previewApi = {
       if (request.method === "GET" && url.pathname === "/api/articles") {
         return json(response, 200, { articles: articles.map(({ markdown: _markdown, ...article }) => article) });
       }
-      const articleMatch = url.pathname.match(/^\/api\/articles\/([a-z0-9-]+)$/);
-      if (request.method === "GET" && articleMatch) {
-        const article = articles.find((item) => item.slug === articleMatch[1]);
+      if (request.method === "GET" && url.pathname === "/api/article") {
+        const article = articles.find((item) => item.slug === url.searchParams.get("slug"));
         return article ? json(response, 200, { article }) : json(response, 404, { error: "Article not found" });
       }
-      const deploymentMatch = url.pathname.match(/^\/api\/deployments\/([a-f0-9]{40})$/);
-      if (request.method === "GET" && deploymentMatch) {
+      const commitSha = url.searchParams.get("commitSha");
+      if (request.method === "GET" && url.pathname === "/api/deployment" && /^[a-f0-9]{40}$/.test(commitSha || "")) {
         return json(response, 200, {
           found: true,
-          commitSha: deploymentMatch[1],
+          commitSha,
           deploymentId: "dpl_localpreview",
           state: "READY",
           deploymentUrl: "http://127.0.0.1:5175",

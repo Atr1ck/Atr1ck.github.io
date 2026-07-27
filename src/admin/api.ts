@@ -41,7 +41,7 @@ export async function listArticles() {
 }
 
 export async function getArticle(slug: string) {
-  const result = await requestJson<{ article: AdminArticle }>(`/api/articles/${encodeURIComponent(slug)}`);
+  const result = await requestJson<{ article: AdminArticle }>(`/api/article?slug=${encodeURIComponent(slug)}`);
   return result.article;
 }
 
@@ -57,7 +57,7 @@ export function publishArticle(
 }
 
 export function getDeployment(commitSha: string) {
-  return requestJson<DeploymentStatus>(`/api/deployments/${commitSha}`);
+  return requestJson<DeploymentStatus>(`/api/deployment?commitSha=${encodeURIComponent(commitSha)}`);
 }
 
 export function redeploy(csrfToken: string, deploymentId: string) {
