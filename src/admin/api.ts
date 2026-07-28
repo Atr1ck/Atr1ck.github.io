@@ -3,6 +3,7 @@ import type {
   AdminArticleSummary,
   AdminPictureList,
   AdminSession,
+  CategoryPublishResult,
   DeploymentStatus,
   PicturePublishResult,
   PublishResult,
@@ -38,7 +39,22 @@ export function getSession() {
 }
 
 export function getCategories() {
-  return requestJson<CategoryConfig>("/json/categories.json");
+  return getCategoryState().then((result) => result.categories);
+}
+
+export function getCategoryState() {
+  return requestJson<{ categories: CategoryConfig; sha: string }>("/api/categories");
+}
+
+export function createCategory(
+  csrfToken: string,
+  payload: { group: "articles" | "pictures"; category: { slug: string; name: string }; expectedSha: string },
+) {
+  return requestJson<CategoryPublishResult>("/api/categories/publish", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-csrf-token": csrfToken },
+    body: JSON.stringify(payload),
+  });
 }
 
 export async function logout(csrfToken: string) {

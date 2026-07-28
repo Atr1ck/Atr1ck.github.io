@@ -11,6 +11,8 @@ import callbackHandler from "../api/auth/callback.js";
 import sessionHandler from "../api/auth/session.js";
 import picturePublishHandler from "../api/pictures/publish.js";
 import pictureListHandler from "../api/pictures.js";
+import categoryPublishHandler from "../api/categories/publish.js";
+import categoryListHandler from "../api/categories.js";
 import { createSessionToken, SESSION_COOKIE } from "./session.js";
 
 process.env.APP_ORIGIN = "https://blog.example.com";
@@ -75,6 +77,7 @@ function responsePair() {
 const writeHandlers = [
   ["publish", publishHandler],
   ["picture publish", picturePublishHandler],
+  ["category publish", categoryPublishHandler],
   ["redeploy", redeployHandler],
   ["logout", logoutHandler],
 ] as const;
@@ -130,6 +133,12 @@ test("article detail requires authentication before GitHub access", async () => 
 test("picture listing requires authentication before GitHub access", async () => {
   const { response, vercelResponse } = responsePair();
   await pictureListHandler({ method: "GET", headers: {} } as VercelRequest, vercelResponse);
+  assert.equal(response.statusCode, 401);
+});
+
+test("category listing requires authentication before GitHub access", async () => {
+  const { response, vercelResponse } = responsePair();
+  await categoryListHandler({ method: "GET", headers: {} } as VercelRequest, vercelResponse);
   assert.equal(response.statusCode, 401);
 });
 

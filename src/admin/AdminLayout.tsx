@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Images, LogIn, LogOut, PenLine } from "lucide-react";
+import { Images, LogIn, LogOut, PenLine, Tags } from "lucide-react";
 import { Link, NavLink, Outlet } from "react-router-dom";
 import { getSession, logout } from "./api";
 import type { AdminContext } from "./context";
@@ -52,6 +52,7 @@ export default function AdminLayout() {
             <nav className="flex items-center gap-1 text-sm" aria-label="后台内容导航">
               <NavLink end to="/admin" className={({ isActive }) => `btn btn-sm rounded-md ${isActive ? "btn-neutral" : "btn-ghost"}`}><PenLine className="h-4 w-4" />文章</NavLink>
               <NavLink to="/admin/pictures" className={({ isActive }) => `btn btn-sm rounded-md ${isActive ? "btn-neutral" : "btn-ghost"}`}><Images className="h-4 w-4" />照片</NavLink>
+              <NavLink to="/admin/categories" className={({ isActive }) => `btn btn-sm rounded-md ${isActive ? "btn-neutral" : "btn-ghost"}`}><Tags className="h-4 w-4" />分类</NavLink>
             </nav>
           </div>
           <div className="flex items-center gap-3 text-sm">

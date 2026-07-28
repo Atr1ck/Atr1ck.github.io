@@ -68,3 +68,11 @@ export interface PicturePublishResult {
   pictureId: string;
   status: "submitted";
 }
+
+export interface CategoryPublishResult {
+  categories: import("../types/content").CategoryConfig;
+  categorySha: string;
+  commitSha: string;
+  commitUrl: string;
+  status: "submitted";
+}

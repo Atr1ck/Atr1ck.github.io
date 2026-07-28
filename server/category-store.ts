@@ -39,13 +39,24 @@ function parseGroup(value: unknown, name: string): CategoryDefinition[] {
     const slug = typeof record.slug === "string" ? record.slug : "";
     const label = typeof record.name === "string" ? record.name.trim() : "";
     const order = Number(record.order);
-    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || !label || !Number.isInteger(order)) {
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || !label || !Number.isInteger(order) || order < 0) {
       throw new HttpError(502, `${name} category ${slug || "entry"} is invalid`);
     }
     if (slugs.has(slug)) throw new HttpError(502, `${name} category ${slug} is duplicated`);
     slugs.add(slug);
     return { slug, name: label, order };
   }).sort((first, second) => first.order - second.order || first.slug.localeCompare(second.slug));
+}
+
+export function parseCategoryConfig(value: unknown): CategoryConfig {
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw new HttpError(502, "Category config is invalid");
+  const record = value as Record<string, unknown>;
+  if (record.version !== 1) throw new HttpError(502, "Category config version is invalid");
+  const articles = parseGroup(record.articles, "article");
+  const pictures = parseGroup(record.pictures, "picture");
+  if (!articles.some((category) => category.slug === "uncategorized")) throw new HttpError(502, "Article categories must include uncategorized");
+  if (!pictures.some((category) => category.slug === "uncategorized")) throw new HttpError(502, "Picture categories must include uncategorized");
+  return { version: 1, articles, pictures };
 }
 
 export async function readRepositoryJson<T>(
@@ -71,11 +82,12 @@ export async function readRepositoryJson<T>(
 export async function getRepositoryCategories(
   dependencies: CategoryStoreDependencies = defaultDependencies(),
 ): Promise<CategoryConfig> {
-  const { value } = await readRepositoryJson<Record<string, unknown>>("content/categories.json", dependencies);
-  if (value.version !== 1) throw new HttpError(502, "Category config version is invalid");
-  return {
-    version: 1,
-    articles: parseGroup(value.articles, "article"),
-    pictures: parseGroup(value.pictures, "picture"),
-  };
+  return (await getRepositoryCategoryState(dependencies)).categories;
+}
+
+export async function getRepositoryCategoryState(
+  dependencies: CategoryStoreDependencies = defaultDependencies(),
+): Promise<{ categories: CategoryConfig; sha: string }> {
+  const { value, sha } = await readRepositoryJson<unknown>("content/categories.json", dependencies);
+  return { categories: parseCategoryConfig(value), sha };
 }
