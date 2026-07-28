@@ -1,28 +1,19 @@
 import { useEffect, useState } from "react";
 import { RotateCcw, Search, SlidersHorizontal, X } from "lucide-react";
 
-interface FilterOption {
-  slug: string;
-  name: string;
-}
-
 interface ContentFilterPanelProps {
-  category: string;
-  categories: FilterOption[];
   count: number;
   countLabel: string;
   search: string;
   searchPlaceholder: string;
   tag: string;
   tags: string[];
-  onChange: (key: "category" | "tag" | "q", value: string) => void;
+  onChange: (key: "tag" | "q", value: string) => void;
   onReset: () => void;
   desktopClassName?: string;
 }
 
 export default function ContentFilterPanel({
-  category,
-  categories,
   count,
   countLabel,
   search,
@@ -34,7 +25,7 @@ export default function ContentFilterPanel({
   desktopClassName = "",
 }: ContentFilterPanelProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const activeCount = Number(Boolean(search.trim())) + Number(category !== "all") + Number(tag !== "all");
+  const activeCount = Number(Boolean(search.trim())) + Number(tag !== "all");
 
   useEffect(() => {
     if (!mobileOpen) return;
@@ -70,14 +61,6 @@ export default function ContentFilterPanel({
           <Search className="h-4 w-4 shrink-0 opacity-55" />
           <input className="min-w-0" value={search} onChange={(event) => onChange("q", event.target.value)} placeholder={searchPlaceholder} />
         </span>
-      </label>
-
-      <label className="admin-field">
-        <span>分类</span>
-        <select className="select select-sm w-full rounded-md" value={category} onChange={(event) => onChange("category", event.target.value)}>
-          <option value="all">全部分类</option>
-          {categories.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}
-        </select>
       </label>
 
       <label className="admin-field">

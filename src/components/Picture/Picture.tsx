@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Download, X } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
-import type { CategoryConfig, PictureIndex, PictureItem } from "../../types/content";
+import type { PictureIndex, PictureItem } from "../../types/content";
 import ContentFilterPanel from "../Filters/ContentFilterPanel";
 import Loading from "../Load/Load";
 
@@ -10,7 +10,7 @@ function assetUrl(path: string) {
   return `/pictures/${path.split("/").map(encodeURIComponent).join("/")}`;
 }
 
-function PictureCard({ picture, categoryName }: { picture: PictureItem; categoryName: string }) {
+function PictureCard({ picture }: { picture: PictureItem }) {
   const [open, setOpen] = useState(false);
   const [loaded, setLoaded] = useState(false);
   return (
@@ -21,7 +21,6 @@ function PictureCard({ picture, categoryName }: { picture: PictureItem; category
       <div className="px-3 py-2">
         <div className="flex items-center justify-between gap-2">
           <h2 className="min-w-0 truncate text-sm font-medium" title={picture.title}>{picture.title}</h2>
-          <span className="shrink-0 text-xs text-primary">{categoryName}</span>
         </div>
         {picture.tags.length > 0 && <div className="mt-1 flex flex-wrap gap-x-2">{picture.tags.map((tag) => <span key={tag} className="text-xs text-base-content/60">#{tag}</span>)}</div>}
       </div>
@@ -42,21 +41,14 @@ function PictureCard({ picture, categoryName }: { picture: PictureItem; category
 }
 
 async function loadPictures() {
-  const [picturesResponse, categoriesResponse] = await Promise.all([
-    fetch("/json/pictures.json"),
-    fetch("/json/categories.json"),
-  ]);
-  if (!picturesResponse.ok || !categoriesResponse.ok) throw new Error("Failed to load pictures");
-  return {
-    index: await picturesResponse.json() as PictureIndex,
-    categories: await categoriesResponse.json() as CategoryConfig,
-  };
+  const picturesResponse = await fetch("/json/pictures.json");
+  if (!picturesResponse.ok) throw new Error("Failed to load pictures");
+  return { index: await picturesResponse.json() as PictureIndex };
 }
 
 export default function Imageshow() {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = useQuery({ queryKey: ["pictures"], queryFn: loadPictures });
-  const category = searchParams.get("category") || "all";
   const tag = searchParams.get("tag") || "all";
   const search = searchParams.get("q") || "";
   const allPictures = useMemo(() => query.data?.index.pictures || [], [query.data]);
@@ -64,14 +56,12 @@ export default function Imageshow() {
   const pictures = useMemo(() => {
     const term = search.trim().toLowerCase();
     return allPictures.filter((picture) =>
-      (category === "all" || picture.category === category) &&
       (tag === "all" || picture.tags.includes(tag)) &&
-      (!term || [picture.title, picture.category, ...picture.tags].some((value) => value.toLowerCase().includes(term))),
+      (!term || [picture.title, ...picture.tags].some((value) => value.toLowerCase().includes(term))),
     );
-  }, [allPictures, category, search, tag]);
-  const categoryNames = new Map(query.data?.categories.pictures.map((item) => [item.slug, item.name]) || []);
+  }, [allPictures, search, tag]);
 
-  const updateFilter = (key: "category" | "tag" | "q", value: string) => {
+  const updateFilter = (key: "tag" | "q", value: string) => {
     const next = new URLSearchParams(searchParams);
     if (!value || value === "all") next.delete(key);
     else next.set(key, value);
@@ -79,7 +69,7 @@ export default function Imageshow() {
   };
   const resetFilters = () => {
     const next = new URLSearchParams(searchParams);
-    ["category", "tag", "q"].forEach((key) => next.delete(key));
+    ["tag", "q"].forEach((key) => next.delete(key));
     setSearchParams(next);
   };
 
@@ -91,8 +81,6 @@ export default function Imageshow() {
       <div className="pointer-events-none fixed right-12 top-20 z-30 hidden w-64 lg:block">
         <div className="pointer-events-auto">
           <ContentFilterPanel
-            category={category}
-            categories={query.data?.categories.pictures || []}
             count={pictures.length}
             countLabel="张照片"
             search={search}
@@ -107,8 +95,6 @@ export default function Imageshow() {
       </div>
       <div className="lg:hidden">
         <ContentFilterPanel
-          category={category}
-          categories={query.data?.categories.pictures || []}
           count={pictures.length}
           countLabel="张照片"
           search={search}
@@ -121,7 +107,7 @@ export default function Imageshow() {
       </div>
       <div className="mx-auto min-w-0 max-w-4xl">
         <div className="columns-2 gap-3 md:columns-3 md:gap-4 xl:columns-4">
-          {pictures.map((picture) => <PictureCard key={picture.id} picture={picture} categoryName={categoryNames.get(picture.category) || "未分类"} />)}
+          {pictures.map((picture) => <PictureCard key={picture.id} picture={picture} />)}
         </div>
         {pictures.length === 0 && <p className="py-16 text-center text-sm text-base-content/55">没有符合条件的照片</p>}
       </div>

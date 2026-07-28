@@ -2,27 +2,19 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import type { ArticleIndex } from "../../types/article";
-import type { CategoryConfig } from "../../types/content";
 import ContentFilterPanel from "../Filters/ContentFilterPanel";
 import Loading from "../Load/Load";
 
 async function loadArticleList() {
-  const [articlesResponse, categoriesResponse] = await Promise.all([
-    fetch("/json/articles.json"),
-    fetch("/json/categories.json"),
-  ]);
-  if (!articlesResponse.ok || !categoriesResponse.ok) throw new Error("Failed to load article categories");
-  return {
-    articles: await articlesResponse.json() as ArticleIndex,
-    categories: await categoriesResponse.json() as CategoryConfig,
-  };
+  const articlesResponse = await fetch("/json/articles.json");
+  if (!articlesResponse.ok) throw new Error("Failed to load articles");
+  return { articles: await articlesResponse.json() as ArticleIndex };
 }
 
 export default function ArticleList() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const query = useQuery({ queryKey: ["article-list"], queryFn: loadArticleList });
-  const category = searchParams.get("category") || "all";
   const tag = searchParams.get("tag") || "all";
   const search = searchParams.get("q") || "";
 
@@ -34,14 +26,12 @@ export default function ArticleList() {
   const articles = useMemo(() => {
     const term = search.trim().toLowerCase();
     return allArticles.filter((article) =>
-      (category === "all" || article.category === category) &&
       (tag === "all" || article.tags.includes(tag)) &&
-      (!term || [article.title, article.summary, article.category, ...article.tags].some((value) => value.toLowerCase().includes(term))),
+      (!term || [article.title, article.summary, ...article.tags].some((value) => value.toLowerCase().includes(term))),
     );
-  }, [allArticles, category, search, tag]);
-  const categoryNames = new Map(query.data?.categories.articles.map((item) => [item.slug, item.name]) || []);
+  }, [allArticles, search, tag]);
 
-  const updateFilter = (key: "category" | "tag" | "q", value: string) => {
+  const updateFilter = (key: "tag" | "q", value: string) => {
     const next = new URLSearchParams(searchParams);
     if (!value || value === "all") next.delete(key);
     else next.set(key, value);
@@ -49,7 +39,7 @@ export default function ArticleList() {
   };
   const resetFilters = () => {
     const next = new URLSearchParams(searchParams);
-    ["category", "tag", "q"].forEach((key) => next.delete(key));
+    ["tag", "q"].forEach((key) => next.delete(key));
     setSearchParams(next);
   };
 
@@ -61,8 +51,6 @@ export default function ArticleList() {
       <div className="pointer-events-none fixed right-12 top-20 z-30 hidden w-64 lg:block">
         <div className="pointer-events-auto">
           <ContentFilterPanel
-            category={category}
-            categories={query.data?.categories.articles || []}
             count={articles.length}
             countLabel="篇文章"
             search={search}
@@ -78,8 +66,6 @@ export default function ArticleList() {
       <div className="mx-auto flex w-full max-w-3xl flex-col items-center">
         <div className="lg:hidden">
           <ContentFilterPanel
-            category={category}
-            categories={query.data?.categories.articles || []}
             count={articles.length}
             countLabel="篇文章"
             search={search}
@@ -97,7 +83,6 @@ export default function ArticleList() {
             onClick={() => navigate(`/articles/${article.slug}`)}
           >
             <div className="w-full">
-              <div className="mb-2 text-xs font-medium text-primary">{categoryNames.get(article.category) || "未分类"}</div>
               <h2 className="text-xl font-semibold text-base-content sm:text-3xl">{article.title}</h2>
               <p className="mt-2 min-h-10 text-sm text-base-content/70 line-clamp-2 sm:min-h-12 sm:text-base">{article.summary}</p>
             </div>
