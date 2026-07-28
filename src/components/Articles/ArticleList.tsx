@@ -58,7 +58,7 @@ export default function ArticleList() {
 
   return (
     <main className="relative w-full px-2 py-4 sm:px-4 sm:py-6 lg:px-6">
-      <div className="pointer-events-none fixed right-6 top-20 z-30 hidden w-64 lg:block">
+      <div className="pointer-events-none fixed right-12 top-20 z-30 hidden w-64 lg:block">
         <div className="pointer-events-auto">
           <ContentFilterPanel
             category={category}
