@@ -55,23 +55,25 @@ export default function Imageshow() {
   const search = searchParams.get("q") || "";
   const allPictures = useMemo(() => query.data?.index.pictures || [], [query.data]);
   const tags = useMemo(() => [...new Set(allPictures.flatMap((picture) => picture.tags))].sort((a, b) => a.localeCompare(b, "zh-CN")), [allPictures]);
+  const selectedTag = tags.find((item) => item.toLocaleLowerCase("zh-CN") === tag.toLocaleLowerCase("zh-CN")) || "all";
   const pictures = useMemo(() => {
     const term = search.trim().toLowerCase();
     return allPictures.filter((picture) =>
-      (tag === "all" || picture.tags.includes(tag)) &&
+      (tag === "all" || picture.tags.some((item) => item.toLocaleLowerCase("zh-CN") === tag.toLocaleLowerCase("zh-CN"))) &&
       (!term || [picture.title, ...picture.tags].some((value) => value.toLowerCase().includes(term))),
     );
   }, [allPictures, search, tag]);
 
   const updateFilter = (key: "tag" | "q", value: string) => {
     const next = new URLSearchParams(searchParams);
+    next.delete("category");
     if (!value || value === "all") next.delete(key);
     else next.set(key, value);
     setSearchParams(next);
   };
   const resetFilters = () => {
     const next = new URLSearchParams(searchParams);
-    ["tag", "q"].forEach((key) => next.delete(key));
+    ["category", "tag", "q"].forEach((key) => next.delete(key));
     setSearchParams(next);
   };
 
@@ -87,7 +89,7 @@ export default function Imageshow() {
             countLabel="张照片"
             search={search}
             searchPlaceholder="搜索照片"
-            tag={tag}
+            tag={selectedTag}
             tags={tags}
             onChange={updateFilter}
             onReset={resetFilters}
@@ -101,7 +103,7 @@ export default function Imageshow() {
           countLabel="张照片"
           search={search}
           searchPlaceholder="搜索照片"
-          tag={tag}
+          tag={selectedTag}
           tags={tags}
           onChange={updateFilter}
           onReset={resetFilters}

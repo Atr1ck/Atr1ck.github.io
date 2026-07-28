@@ -5,9 +5,8 @@ import { publishPicture, validatePicturePublishRequest } from "./picture-publish
 import type { PicturePublishDependencies } from "./picture-publish.js";
 import type { GitHubRequester } from "./article-publish.js";
 
-const categories = new Set(["original", "uncategorized"]);
 const manifestSha = "e".repeat(40);
-const legacyPicture = { id: "legacy-photo", title: "Legacy", file: "旧照片.JPG", preview: "旧照片.webp", category: "original", tags: [], date: "2026-07-28", published: true };
+const legacyPicture = { id: "legacy-photo", title: "Legacy", file: "旧照片.JPG", preview: "旧照片.webp", tags: [], date: "2026-07-28", published: true };
 const manifest = { version: 1 as const, pictures: [legacyPicture] };
 
 function editRequest(overrides = {}) {
@@ -15,14 +14,14 @@ function editRequest(overrides = {}) {
 }
 
 test("allows metadata-only edits of migrated root-level picture paths", () => {
-  const result = validatePicturePublishRequest(editRequest({ picture: { ...legacyPicture, title: "Updated" } }), categories);
+  const result = validatePicturePublishRequest(editRequest({ picture: { ...legacyPicture, title: "Updated" } }));
   assert.equal(result.picture.file, "旧照片.JPG");
   assert.equal(result.assets.length, 0);
 });
 
 test("requires new and replacement assets to use the picture id directory", () => {
-  assert.throws(() => validatePicturePublishRequest({ ...editRequest(), isNew: true }, categories), (error) => error instanceof HttpError && error.status === 400);
-  assert.throws(() => validatePicturePublishRequest({ ...editRequest(), assets: [{ path: "public/pictures/legacy-photo/new.webp", contentBase64: Buffer.from("x").toString("base64") }] }, categories), (error) => error instanceof HttpError && error.status === 400);
+  assert.throws(() => validatePicturePublishRequest({ ...editRequest(), isNew: true }), (error) => error instanceof HttpError && error.status === 400);
+  assert.throws(() => validatePicturePublishRequest({ ...editRequest(), assets: [{ path: "public/pictures/legacy-photo/new.webp", contentBase64: Buffer.from("x").toString("base64") }] }), (error) => error instanceof HttpError && error.status === 400);
 });
 
 function dependencies(expectedSha = manifestSha) {
@@ -45,8 +44,8 @@ function dependencies(expectedSha = manifestSha) {
 
 test("updates the manifest in one commit and uses a non-forced ref update", async () => {
   const { calls, dependencies: deps } = dependencies();
-  const input = validatePicturePublishRequest(editRequest({ picture: { ...legacyPicture, title: "Updated", published: false } }), categories);
-  const result = await publishPicture(input, categories, deps);
+  const input = validatePicturePublishRequest(editRequest({ picture: { ...legacyPicture, title: "Updated", published: false } }));
+  const result = await publishPicture(input, deps);
   assert.equal(result.status, "submitted");
   assert.equal(result.manifestSha, "1".repeat(40));
   const treeCall = calls.find((call) => call.route.endsWith("/git/trees"));
@@ -58,13 +57,13 @@ test("updates the manifest in one commit and uses a non-forced ref update", asyn
 
 test("rejects stale manifest SHA before creating blobs", async () => {
   const { calls, dependencies: deps } = dependencies("f".repeat(40));
-  const input = validatePicturePublishRequest(editRequest(), categories);
-  await assert.rejects(() => publishPicture(input, categories, deps), (error) => error instanceof HttpError && error.status === 409);
+  const input = validatePicturePublishRequest(editRequest());
+  await assert.rejects(() => publishPicture(input, deps), (error) => error instanceof HttpError && error.status === 409);
   assert.equal(calls.some((call) => call.route.endsWith("/git/blobs")), false);
 });
 
 test("rejects changing legacy asset paths without replacements", async () => {
   const { dependencies: deps } = dependencies();
-  const input = validatePicturePublishRequest(editRequest({ picture: { ...legacyPicture, file: "another.jpg" } }), categories);
-  await assert.rejects(() => publishPicture(input, categories, deps), (error) => error instanceof HttpError && error.status === 400);
+  const input = validatePicturePublishRequest(editRequest({ picture: { ...legacyPicture, file: "another.jpg" } }));
+  await assert.rejects(() => publishPicture(input, deps), (error) => error instanceof HttpError && error.status === 400);
 });

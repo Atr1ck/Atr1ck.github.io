@@ -3,12 +3,10 @@ import type {
   AdminArticleSummary,
   AdminPictureList,
   AdminSession,
-  CategoryPublishResult,
   DeploymentStatus,
   PicturePublishResult,
   PublishResult,
 } from "./types";
-import type { CategoryConfig } from "../types/content";
 
 export class ApiError extends Error {
   constructor(public readonly status: number, message: string) {
@@ -38,25 +36,6 @@ export function getSession() {
   return requestJson<AdminSession>("/api/auth/session");
 }
 
-export function getCategories() {
-  return getCategoryState().then((result) => result.categories);
-}
-
-export function getCategoryState() {
-  return requestJson<{ categories: CategoryConfig; sha: string }>("/api/categories");
-}
-
-export function createCategory(
-  csrfToken: string,
-  payload: { group: "articles" | "pictures"; category: { slug: string; name: string }; expectedSha: string },
-) {
-  return requestJson<CategoryPublishResult>("/api/categories", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "x-csrf-token": csrfToken },
-    body: JSON.stringify(payload),
-  });
-}
-
 export async function logout(csrfToken: string) {
   const response = await fetch("/api/auth/logout", {
     method: "POST",
@@ -72,6 +51,14 @@ export async function listArticles() {
 
 export function listPictures() {
   return requestJson<AdminPictureList>("/api/pictures");
+}
+
+export async function listTagSuggestions() {
+  const [articlesResponse, picturesResponse] = await Promise.all([fetch("/json/articles.json"), fetch("/json/pictures.json")]);
+  if (!articlesResponse.ok || !picturesResponse.ok) return [];
+  const articles = await articlesResponse.json() as Record<string, { tags: string[] }>;
+  const pictures = await picturesResponse.json() as { pictures: Array<{ tags: string[] }> };
+  return [...new Set([...Object.values(articles).flatMap((article) => article.tags), ...pictures.pictures.flatMap((picture) => picture.tags)])].sort((first, second) => first.localeCompare(second, "zh-CN"));
 }
 
 export async function getArticle(slug: string) {

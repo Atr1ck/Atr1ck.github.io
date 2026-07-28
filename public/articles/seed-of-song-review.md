@@ -1,12 +1,11 @@
 ---
 title: 播种之谣短评
 slug: seed-of-song-review
-category: reviews
 date: '2024-12-22'
 updated: '2026-07-27'
 tags:
-  - visual novel
-  - comment
+  - Visual Novel
+  - Comment
 summary: ''
 cover: null
 published: true

@@ -1,14 +1,12 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { loadCategories } from "./category-content.mjs";
 import {
   PICTURE_OUTPUT,
   loadPictureManifest,
   validatePictureAssets,
 } from "./picture-content.mjs";
 
-const categories = await loadCategories();
-const manifest = await loadPictureManifest(categories);
+const manifest = await loadPictureManifest();
 const assetErrors = await validatePictureAssets(manifest);
 if (assetErrors.length > 0) throw new Error(`Picture asset validation failed:\n- ${assetErrors.join("\n- ")}`);
 

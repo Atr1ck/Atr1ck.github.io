@@ -8,17 +8,19 @@ import {
   MAX_PUBLISH_REQUEST_BYTES,
   MAX_TOTAL_ASSET_BYTES,
 } from "../../shared/publish-limits";
-import { getCategories, getDeployment, listPictures, publishPicture, redeploy } from "./api";
+import { getDeployment, listPictures, listTagSuggestions, publishPicture, redeploy } from "./api";
 import { processImage } from "./image-processing";
 import type { ProcessedImage } from "./image-processing";
 import { useAdminContext } from "./context";
 import type { AdminPicture } from "./types";
+import TagInput from "./TagInput";
+import { normalizeTagList } from "../../shared/tags";
 
 interface PictureDraft { fields: AdminPicture; image: ProcessedImage | null; expectedManifestSha: string; }
 interface PreparedAsset { path: string; contentBase64: string; preserveOriginal: boolean; size: number; }
 
 const today = () => new Date().toISOString().slice(0, 10);
-const EMPTY_PICTURE: AdminPicture = { id: "", title: "", file: "", preview: "", category: "uncategorized", tags: [], date: today(), published: true };
+const EMPTY_PICTURE: AdminPicture = { id: "", title: "", file: "", preview: "", tags: [], date: today(), published: true };
 
 function formatBytes(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
@@ -37,7 +39,7 @@ export default function PictureEditor() {
   const queryClient = useQueryClient();
   const { session } = useAdminContext();
   const [fields, setFields] = useState<AdminPicture>({ ...EMPTY_PICTURE });
-  const [tags, setTags] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
   const [image, setImage] = useState<ProcessedImage | null>(null);
   const [expectedManifestSha, setExpectedManifestSha] = useState("");
   const [message, setMessage] = useState("");
@@ -47,7 +49,7 @@ export default function PictureEditor() {
   const publishedSnapshot = useRef<string | null>(null);
 
   const picturesQuery = useQuery({ queryKey: ["admin-pictures"], queryFn: listPictures });
-  const categoriesQuery = useQuery({ queryKey: ["categories"], queryFn: getCategories });
+  const tagSuggestionsQuery = useQuery({ queryKey: ["tag-suggestions"], queryFn: listTagSuggestions });
   const draftKey = `atr1ck-picture-draft:${routeId || "new"}`;
 
   useEffect(() => {
@@ -56,13 +58,13 @@ export default function PictureEditor() {
       const draft = await localforage.getItem<PictureDraft>(draftKey);
       if (draft) {
         setFields(draft.fields);
-        setTags(draft.fields.tags.join(", "));
+        setTags(draft.fields.tags);
         setImage(draft.image);
         setExpectedManifestSha(draft.expectedManifestSha);
         setMessage("已恢复本地草稿");
       } else if (routeId) {
         const picture = picturesQuery.data.pictures.find((item) => item.id === routeId);
-        if (picture) { setFields(picture); setTags(picture.tags.join(", ")); }
+        if (picture) { setFields(picture); setTags(picture.tags); }
       }
       setExpectedManifestSha((current) => current || picturesQuery.data.manifestSha);
       initialized.current = true;
@@ -71,7 +73,7 @@ export default function PictureEditor() {
 
   useEffect(() => {
     if (!initialized.current) return;
-    const draft = { fields: { ...fields, tags: tags.split(",").map((tag) => tag.trim()).filter(Boolean) }, image, expectedManifestSha };
+    const draft = { fields: { ...fields, tags: normalizeTagList(tags) }, image, expectedManifestSha };
     if (publishedSnapshot.current === JSON.stringify(draft)) {
       void localforage.removeItem(draftKey);
       return;
@@ -81,7 +83,7 @@ export default function PictureEditor() {
   }, [draftKey, expectedManifestSha, fields, image, tags]);
 
   const prepared = useMemo(() => {
-    if (!image || !fields.id) return { picture: { ...fields, tags: tags.split(",").map((tag) => tag.trim()).filter(Boolean) }, assets: [] as PreparedAsset[] };
+    if (!image || !fields.id) return { picture: { ...fields, tags: normalizeTagList(tags) }, assets: [] as PreparedAsset[] };
     const directory = fields.id;
     const hasCompressed = Boolean(image.compressedBase64 && image.compressedName && image.compressedSize != null);
     const compressedName = image.compressedName === image.originalName ? image.compressedName?.replace(/\.webp$/i, "-optimized.webp") : image.compressedName;
@@ -90,7 +92,7 @@ export default function PictureEditor() {
     if (hasCompressed) assets.push({ path: `public/pictures/${directory}/${compressedName}`, contentBase64: image.compressedBase64!, preserveOriginal: false, size: image.compressedSize! });
     const file = image.preserveOriginal || !hasCompressed ? `${directory}/${image.originalName}` : `${directory}/${compressedName}`;
     const preview = hasCompressed ? `${directory}/${compressedName}` : file;
-    return { picture: { ...fields, file, preview, tags: tags.split(",").map((tag) => tag.trim()).filter(Boolean) }, assets };
+    return { picture: { ...fields, file, preview, tags: normalizeTagList(tags) }, assets };
   }, [fields, image, tags]);
   const totalBytes = prepared.assets.reduce((sum, asset) => sum + asset.size, 0);
   const payload = useMemo(() => ({ picture: prepared.picture, expectedManifestSha, isNew, assets: prepared.assets.map((asset) => ({ path: asset.path, contentBase64: asset.contentBase64, preserveOriginal: asset.preserveOriginal })) }), [expectedManifestSha, isNew, prepared]);
@@ -100,7 +102,6 @@ export default function PictureEditor() {
     if (!fields.title.trim()) result.push("标题不能为空");
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(fields.id)) result.push("ID 只能包含小写字母、数字和连字符");
     if (isNew && picturesQuery.data?.pictures.some((picture) => picture.id === fields.id)) result.push("照片 ID 已存在");
-    if (!categoriesQuery.data?.pictures.some((category) => category.slug === fields.category)) result.push("请选择有效的照片分类");
     if (!/^\d{4}-\d{2}-\d{2}$/.test(fields.date)) result.push("请选择有效日期");
     if (!expectedManifestSha) result.push("照片清单尚未加载");
     if (isNew && !image) result.push("新照片必须上传图片");
@@ -108,7 +109,7 @@ export default function PictureEditor() {
     if (totalBytes > MAX_TOTAL_ASSET_BYTES) result.push("提交文件总大小不能超过 2.75MB；保留原图时需确保原图与预览总和不超限");
     if (requestBytes > MAX_PUBLISH_REQUEST_BYTES) result.push("发布请求不能超过 4MB");
     return result;
-  }, [categoriesQuery.data, expectedManifestSha, fields, image, isNew, picturesQuery.data, prepared.assets, requestBytes, totalBytes]);
+  }, [expectedManifestSha, fields, image, isNew, picturesQuery.data, prepared.assets, requestBytes, totalBytes]);
 
   const publishMutation = useMutation({
     mutationFn: () => publishPicture(session.csrfToken, payload),
@@ -152,9 +153,8 @@ export default function PictureEditor() {
         <label className="admin-field sm:col-span-2"><span>标题</span><input className="input input-sm w-full rounded-md" value={fields.title} onChange={(event) => update("title", event.target.value)} /></label>
         <label className="admin-field"><span>ID</span><input className="input input-sm w-full rounded-md font-mono" disabled={!isNew} value={fields.id} onChange={(event) => update("id", slugify(event.target.value))} /></label>
         <label className="admin-field"><span>日期</span><input className="input input-sm w-full rounded-md" type="date" value={fields.date} onChange={(event) => update("date", event.target.value)} /></label>
-        <label className="admin-field"><span>分类</span><select className="select select-sm w-full rounded-md" value={fields.category} onChange={(event) => update("category", event.target.value)}>{categoriesQuery.data?.pictures.map((category) => <option key={category.slug} value={category.slug}>{category.name}</option>)}</select></label>
         <label className="admin-field"><span>可见性</span><span className="flex h-8 items-center gap-2"><input className="toggle toggle-sm" type="checkbox" checked={fields.published} onChange={(event) => update("published", event.target.checked)} />{fields.published ? "公开" : "下线"}</span></label>
-        <label className="admin-field sm:col-span-2"><span>标签（逗号分隔）</span><input className="input input-sm w-full rounded-md" value={tags} onChange={(event) => setTags(event.target.value)} /></label>
+        <label className="admin-field sm:col-span-2"><span>标签</span><TagInput value={tags} suggestions={tagSuggestionsQuery.data || []} onChange={setTags} /></label>
         <div className="sm:col-span-2 border-t border-base-300 pt-4 text-xs text-base-content/55"><p>提交文件 {prepared.assets.length} 个 / {formatBytes(totalBytes)}，请求 {formatBytes(requestBytes)} / 4 MB</p>{!isNew && !image && <p className="mt-1">仅编辑元数据时不会重复上传图片。</p>}</div>
       </div>
     </section>

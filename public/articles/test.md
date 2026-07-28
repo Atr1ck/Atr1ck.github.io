@@ -1,7 +1,6 @@
 ---
 title: 测试
 slug: test
-category: uncategorized
 date: '2026-07-27'
 updated: '2026-07-27'
 tags:

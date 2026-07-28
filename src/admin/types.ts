@@ -7,7 +7,6 @@ export interface AdminSession {
 export interface AdminArticleSummary {
   title: string;
   slug: string;
-  category: string;
   date: string;
   updated: string;
   tags: string[];
@@ -50,7 +49,6 @@ export interface AdminPicture {
   title: string;
   file: string;
   preview: string;
-  category: string;
   tags: string[];
   date: string;
   published: boolean;
@@ -66,13 +64,5 @@ export interface PicturePublishResult {
   commitUrl: string;
   manifestSha: string;
   pictureId: string;
-  status: "submitted";
-}
-
-export interface CategoryPublishResult {
-  categories: import("../types/content").CategoryConfig;
-  categorySha: string;
-  commitSha: string;
-  commitUrl: string;
   status: "submitted";
 }

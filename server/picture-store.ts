@@ -1,13 +1,15 @@
-import { getRepositoryCategories, readRepositoryJson } from "./category-store.js";
-import type { CategoryStoreDependencies } from "./category-store.js";
+import { getRepository, githubRequest } from "./github.js";
+import type { GitHubRepository } from "./github.js";
+import type { GitHubRequester } from "./article-publish.js";
+import { readRepositoryJson } from "./repository-json.js";
 import { HttpError } from "./http.js";
+import { normalizeTagList } from "../shared/tags.js";
 
 export interface PictureMetadata {
   id: string;
   title: string;
   file: string;
   preview: string;
-  category: string;
   tags: string[];
   date: string;
   published: boolean;
@@ -27,7 +29,7 @@ function validDate(value: unknown): value is string {
   return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
 }
 
-export function parsePictureManifest(value: unknown, categorySlugs: ReadonlySet<string>): PictureManifest {
+export function parsePictureManifest(value: unknown): PictureManifest {
   if (!value || typeof value !== "object" || Array.isArray(value)) throw new HttpError(502, "Picture manifest is invalid");
   const record = value as Record<string, unknown>;
   if (record.version !== 1 || !Array.isArray(record.pictures)) throw new HttpError(502, "Picture manifest version is invalid");
@@ -39,13 +41,12 @@ export function parsePictureManifest(value: unknown, categorySlugs: ReadonlySet<
     const title = typeof picture.title === "string" ? picture.title.trim() : "";
     const file = typeof picture.file === "string" ? picture.file : "";
     const preview = typeof picture.preview === "string" ? picture.preview : "";
-    const category = typeof picture.category === "string" ? picture.category : "";
     if (!ID_PATTERN.test(id) || ids.has(id)) throw new HttpError(502, `Picture id ${id || index + 1} is invalid or duplicated`);
     if (!title || !ASSET_PATTERN.test(file) || !ASSET_PATTERN.test(preview) || file.includes("..") || preview.includes("..")) {
       throw new HttpError(502, `Picture ${id} metadata is invalid`);
     }
-    if (!categorySlugs.has(category) || !Array.isArray(picture.tags) || !validDate(picture.date) || typeof picture.published !== "boolean") {
-      throw new HttpError(502, `Picture ${id} classification is invalid`);
+    if (!Array.isArray(picture.tags) || !validDate(picture.date) || typeof picture.published !== "boolean") {
+      throw new HttpError(502, `Picture ${id} metadata is invalid`);
     }
     ids.add(id);
     return {
@@ -53,8 +54,7 @@ export function parsePictureManifest(value: unknown, categorySlugs: ReadonlySet<
       title,
       file,
       preview,
-      category,
-      tags: [...new Set(picture.tags.map(String).map((tag) => tag.trim()).filter(Boolean))],
+      tags: normalizeTagList(picture.tags.map(String)),
       date: picture.date,
       published: picture.published,
     };
@@ -62,10 +62,12 @@ export function parsePictureManifest(value: unknown, categorySlugs: ReadonlySet<
   return { version: 1, pictures };
 }
 
-export async function listAdminPictures(dependencies?: CategoryStoreDependencies) {
-  const categories = await getRepositoryCategories(dependencies);
+export interface PictureStoreDependencies { request: GitHubRequester; repository: GitHubRepository; }
+const defaultDependencies = (): PictureStoreDependencies => ({ request: githubRequest, repository: getRepository() });
+
+export async function listAdminPictures(dependencies: PictureStoreDependencies = defaultDependencies()) {
   const result = await readRepositoryJson<unknown>("content/pictures.json", dependencies);
-  const manifest = parsePictureManifest(result.value, new Set(categories.pictures.map((category) => category.slug)));
+  const manifest = parsePictureManifest(result.value);
   return {
     manifestSha: result.sha,
     pictures: manifest.pictures.sort((first, second) => second.date.localeCompare(first.date) || first.id.localeCompare(second.id)),

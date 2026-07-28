@@ -23,23 +23,25 @@ export default function ArticleList() {
     () => [...new Set(allArticles.flatMap((article) => article.tags))].sort((first, second) => first.localeCompare(second, "zh-CN")),
     [allArticles],
   );
+  const selectedTag = tags.find((item) => item.toLocaleLowerCase("zh-CN") === tag.toLocaleLowerCase("zh-CN")) || "all";
   const articles = useMemo(() => {
     const term = search.trim().toLowerCase();
     return allArticles.filter((article) =>
-      (tag === "all" || article.tags.includes(tag)) &&
+      (tag === "all" || article.tags.some((item) => item.toLocaleLowerCase("zh-CN") === tag.toLocaleLowerCase("zh-CN"))) &&
       (!term || [article.title, article.summary, ...article.tags].some((value) => value.toLowerCase().includes(term))),
     );
   }, [allArticles, search, tag]);
 
   const updateFilter = (key: "tag" | "q", value: string) => {
     const next = new URLSearchParams(searchParams);
+    next.delete("category");
     if (!value || value === "all") next.delete(key);
     else next.set(key, value);
     setSearchParams(next);
   };
   const resetFilters = () => {
     const next = new URLSearchParams(searchParams);
-    ["tag", "q"].forEach((key) => next.delete(key));
+    ["category", "tag", "q"].forEach((key) => next.delete(key));
     setSearchParams(next);
   };
 
@@ -55,7 +57,7 @@ export default function ArticleList() {
             countLabel="篇文章"
             search={search}
             searchPlaceholder="搜索文章"
-            tag={tag}
+            tag={selectedTag}
             tags={tags}
             onChange={updateFilter}
             onReset={resetFilters}
@@ -70,7 +72,7 @@ export default function ArticleList() {
             countLabel="篇文章"
             search={search}
             searchPlaceholder="搜索文章"
-            tag={tag}
+            tag={selectedTag}
             tags={tags}
             onChange={updateFilter}
             onReset={resetFilters}

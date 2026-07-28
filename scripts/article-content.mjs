@@ -3,12 +3,19 @@ import { execFileSync } from "node:child_process";
 import { statSync } from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
-import { CATEGORY_SLUG_PATTERN } from "./category-content.mjs";
 
 export const ARTICLES_DIRECTORY = path.resolve("public/articles");
 export const ARTICLES_OUTPUT = path.resolve("public/json/articles.json");
 export const ALIASES_OUTPUT = path.resolve("public/json/article-aliases.json");
 export const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+function normalizeTags(values) {
+  const tags = values.map(String).map((value) => value.trim().split(/\s+/).map((word) => {
+    if (!word || /[\u4e00-\u9fff]/.test(word) || (word.length > 1 && word === word.toUpperCase())) return word;
+    return `${word[0].toUpperCase()}${word.slice(1).toLowerCase()}`;
+  }).join(" ")).filter(Boolean);
+  return tags.filter((tag, index) => tags.findIndex((item) => item.toLocaleLowerCase("zh-CN") === tag.toLocaleLowerCase("zh-CN")) === index);
+}
 
 export function parseArticle(source, filePath) {
   const parsed = matter(source);
@@ -57,16 +64,15 @@ export function normalizeDate(value, field, fileName, errors) {
   return `${String(year).padStart(4, "0")}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
-export function validateArticle(article, categorySlugs = null) {
+export function validateArticle(article) {
   const { data, content, fileName } = article;
   const errors = [];
   const title = typeof data.title === "string" ? data.title.trim() : "";
   const slug = typeof data.slug === "string" ? data.slug.trim() : "";
-  const category = typeof data.category === "string" ? data.category.trim() : "";
   const summary = typeof data.summary === "string" ? data.summary.trim() : "";
   const cover = typeof data.cover === "string" ? data.cover.trim() : "";
   const tags = Array.isArray(data.tags)
-    ? data.tags.map((tag) => String(tag).trim()).filter(Boolean)
+    ? normalizeTags(data.tags)
     : [];
 
   if (!title) errors.push(`${fileName}: title is required`);
@@ -77,11 +83,6 @@ export function validateArticle(article, categorySlugs = null) {
   }
   if (typeof data.published !== "boolean") {
     errors.push(`${fileName}: published must be true or false`);
-  }
-  if (!CATEGORY_SLUG_PATTERN.test(category)) {
-    errors.push(`${fileName}: category is required and must use a stable slug`);
-  } else if (categorySlugs && !categorySlugs.has(category)) {
-    errors.push(`${fileName}: category "${category}" does not exist`);
   }
   if (data.summary != null && typeof data.summary !== "string") {
     errors.push(`${fileName}: summary must be a string`);
@@ -101,7 +102,6 @@ export function validateArticle(article, categorySlugs = null) {
     value: {
       title,
       slug,
-      category,
       date,
       updated,
       tags,

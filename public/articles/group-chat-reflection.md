@@ -1,12 +1,11 @@
 ---
 title: 群内小事一则
 slug: group-chat-reflection
-category: reviews
 date: '2024-12-13'
 updated: '2025-03-11'
 tags:
-  - think
-  - comment
+  - Think
+  - Comment
 summary: >-
   前言 这篇小记主要是对前几天群里润人的发言的一个思考和评价，具体内容大致如下 评价
   先说结论：人不能获得高于自身社会经验太多的经验，这句话最一开始是在科协大会上由小鱼说出来的，而我在这一次争论中略微体会到了这一点

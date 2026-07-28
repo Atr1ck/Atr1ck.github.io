@@ -3,6 +3,7 @@ import { getRepository, githubRequest } from "./github.js";
 import type { GitHubRepository } from "./github.js";
 import { HttpError } from "./http.js";
 import type { GitHubRequester } from "./article-publish.js";
+import { normalizeTagList } from "../shared/tags.js";
 
 interface RepositoryEntry {
   name: string;
@@ -32,7 +33,6 @@ interface RepositoryBranch {
 export interface AdminArticleSummary {
   title: string;
   slug: string;
-  category: string;
   date: string;
   updated: string;
   tags: string[];
@@ -142,20 +142,18 @@ function parseAdminArticle(markdown: string, entry: RepositoryEntry): AdminArtic
   const parsed = matter(markdown);
   const title = typeof parsed.data.title === "string" ? parsed.data.title.trim() : "";
   const slug = typeof parsed.data.slug === "string" ? parsed.data.slug.trim() : "";
-  const category = typeof parsed.data.category === "string" ? parsed.data.category.trim() : "";
   const summary = typeof parsed.data.summary === "string" ? parsed.data.summary.trim() : "";
   const invalidSummary = parsed.data.summary != null && typeof parsed.data.summary !== "string";
-  if (!title || !slug || !category || invalidSummary || typeof parsed.data.published !== "boolean") {
+  if (!title || !slug || invalidSummary || typeof parsed.data.published !== "boolean") {
     throw new HttpError(502, `${entry.path} has incomplete frontmatter`);
   }
 
   return {
     title,
     slug,
-    category,
     date: normalizeDate(parsed.data.date, "date", entry.path),
     updated: normalizeDate(parsed.data.updated, "updated", entry.path),
-    tags: Array.isArray(parsed.data.tags) ? parsed.data.tags.map(String) : [],
+    tags: Array.isArray(parsed.data.tags) ? normalizeTagList(parsed.data.tags.map(String)) : [],
     summary,
     cover: typeof parsed.data.cover === "string" && parsed.data.cover ? parsed.data.cover : null,
     published: parsed.data.published,
@@ -194,7 +192,6 @@ export async function listAdminArticles(
     return {
       title: article.title,
       slug: article.slug,
-      category: article.category,
       date: article.date,
       updated: article.updated,
       tags: article.tags,

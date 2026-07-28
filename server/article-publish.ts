@@ -10,6 +10,7 @@ import {
   MAX_PUBLISH_REQUEST_BYTES,
   MAX_TOTAL_ASSET_BYTES,
 } from "../shared/publish-limits.js";
+import { normalizeTagList } from "../shared/tags.js";
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SHA_PATTERN = /^[a-f0-9]{40}$/;
@@ -91,7 +92,7 @@ function isArticleImagePath(path: string, slug: string, repositoryPath: boolean)
   return path.startsWith(prefix) && isSafeImageName(path.slice(prefix.length));
 }
 
-export function validatePublishRequest(value: unknown, categorySlugs?: ReadonlySet<string>): PublishRequest {
+export function validatePublishRequest(value: unknown): PublishRequest {
   if (!value || typeof value !== "object") throw new HttpError(400, "Invalid request body");
   if (Buffer.byteLength(JSON.stringify(value), "utf8") > MAX_PUBLISH_REQUEST_BYTES) {
     throw new HttpError(413, "Publish request must not exceed 4MB");
@@ -117,10 +118,6 @@ export function validatePublishRequest(value: unknown, categorySlugs?: ReadonlyS
   if (typeof parsed.data.published !== "boolean") {
     throw new HttpError(400, "Frontmatter published must be true or false");
   }
-  const category = typeof parsed.data.category === "string" ? parsed.data.category.trim() : "";
-  if (!SLUG_PATTERN.test(category) || (categorySlugs && !categorySlugs.has(category))) {
-    throw new HttpError(400, "Frontmatter category is invalid");
-  }
   if (parsed.data.summary != null && typeof parsed.data.summary !== "string") {
     throw new HttpError(400, "Frontmatter summary must be a string");
   }
@@ -128,6 +125,10 @@ export function validatePublishRequest(value: unknown, categorySlugs?: ReadonlyS
     throw new HttpError(400, "Frontmatter summary must not exceed 240 characters");
   }
   if (!Array.isArray(parsed.data.tags)) throw new HttpError(400, "Frontmatter tags must be an array");
+  const rawTags = parsed.data.tags.map(String);
+  if (JSON.stringify(rawTags) !== JSON.stringify(normalizeTagList(rawTags))) {
+    throw new HttpError(400, "Frontmatter tags must use title case and contain no duplicates");
+  }
   if (!parsed.content.trim()) throw new HttpError(400, "Article content is required");
   const markdownTree = unified().use(remarkParse).parse(parsed.content) as MarkdownNode;
   if (containsRawHtml(markdownTree)) {

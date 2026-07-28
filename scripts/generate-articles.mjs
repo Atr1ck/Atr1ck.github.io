@@ -7,11 +7,8 @@ import {
   parseArticle,
   validateArticle,
 } from "./article-content.mjs";
-import { loadCategories } from "./category-content.mjs";
 
 async function generateArticles() {
-  const categories = await loadCategories();
-  const articleCategorySlugs = new Set(categories.articles.map((category) => category.slug));
   const entries = await readdir(ARTICLES_DIRECTORY, { withFileTypes: true });
   const markdownFiles = entries
     .filter((entry) => entry.isFile() && entry.name.endsWith(".md"))
@@ -25,7 +22,7 @@ async function generateArticles() {
   for (const filePath of markdownFiles) {
     const source = await readFile(filePath, "utf8");
     const parsed = parseArticle(source, filePath);
-    const result = validateArticle(parsed, articleCategorySlugs);
+    const result = validateArticle(parsed);
     errors.push(...result.errors);
 
     const article = result.value;

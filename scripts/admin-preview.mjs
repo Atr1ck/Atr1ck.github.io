@@ -7,7 +7,6 @@ import { createServer } from "vite";
 const root = process.cwd();
 const articlesDirectory = path.join(root, "public/articles");
 const picturesManifest = path.join(root, "content/pictures.json");
-const categoriesManifest = path.join(root, "content/categories.json");
 
 function json(response, status, body) {
   response.statusCode = status;
@@ -28,7 +27,6 @@ async function readArticles() {
     return {
       title: parsed.data.title,
       slug: parsed.data.slug,
-      category: parsed.data.category,
       date: dateString(parsed.data.date),
       updated: dateString(parsed.data.updated),
       tags: parsed.data.tags || [],
@@ -50,17 +48,6 @@ async function readPictures() {
     manifestSha: createHash("sha1").update(source).digest("hex"),
     pictures: JSON.parse(source).pictures,
   };
-}
-
-async function readCategories() {
-  const source = await readFile(categoriesManifest, "utf8");
-  return { categories: JSON.parse(source), sha: createHash("sha1").update(source).digest("hex") };
-}
-
-async function readJsonBody(request) {
-  const chunks = [];
-  for await (const chunk of request) chunks.push(chunk);
-  return JSON.parse(Buffer.concat(chunks).toString("utf8"));
 }
 
 const previewApi = {
@@ -86,9 +73,6 @@ const previewApi = {
       }
       if (request.method === "GET" && url.pathname === "/api/pictures") {
         return json(response, 200, await readPictures());
-      }
-      if (request.method === "GET" && url.pathname === "/api/categories") {
-        return json(response, 200, await readCategories());
       }
       const commitSha = url.searchParams.get("commitSha");
       if (request.method === "GET" && url.pathname === "/api/deployment" && /^[a-f0-9]{40}$/.test(commitSha || "")) {
@@ -116,21 +100,6 @@ const previewApi = {
           commitUrl: "https://github.com/Atr1ck/Atr1ck.github.io",
           manifestSha: "d".repeat(40),
           pictureId: "local-preview",
-          status: "submitted",
-        });
-      }
-      if (request.method === "POST" && url.pathname === "/api/categories") {
-        const body = await readJsonBody(request);
-        const state = await readCategories();
-        const group = body.group === "pictures" ? "pictures" : "articles";
-        const orders = state.categories[group].filter((item) => item.slug !== "uncategorized").map((item) => item.order);
-        state.categories[group].push({ ...body.category, order: Math.max(0, ...orders) + 10 });
-        state.categories[group].sort((first, second) => first.order - second.order);
-        return json(response, 202, {
-          categories: state.categories,
-          categorySha: "d".repeat(40),
-          commitSha: "c".repeat(40),
-          commitUrl: "https://github.com/Atr1ck/Atr1ck.github.io",
           status: "submitted",
         });
       }

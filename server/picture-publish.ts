@@ -9,6 +9,7 @@ import {
   MAX_PUBLISH_REQUEST_BYTES,
   MAX_TOTAL_ASSET_BYTES,
 } from "../shared/publish-limits.js";
+import { normalizeTagList } from "../shared/tags.js";
 
 const SHA_PATTERN = /^[a-f0-9]{40}$/;
 const ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -45,7 +46,7 @@ function validDate(value: unknown): value is string {
   return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
 }
 
-export function validatePicturePublishRequest(value: unknown, categorySlugs: ReadonlySet<string>): PicturePublishRequest {
+export function validatePicturePublishRequest(value: unknown): PicturePublishRequest {
   if (!value || typeof value !== "object") throw new HttpError(400, "Invalid request body");
   if (Buffer.byteLength(JSON.stringify(value), "utf8") > MAX_PUBLISH_REQUEST_BYTES) throw new HttpError(413, "Publish request must not exceed 4MB");
   const body = value as Partial<PicturePublishRequest>;
@@ -56,8 +57,7 @@ export function validatePicturePublishRequest(value: unknown, categorySlugs: Rea
     title: typeof raw.title === "string" ? raw.title.trim() : "",
     file: typeof raw.file === "string" ? raw.file.trim() : "",
     preview: typeof raw.preview === "string" ? raw.preview.trim() : "",
-    category: typeof raw.category === "string" ? raw.category.trim() : "",
-    tags: Array.isArray(raw.tags) ? [...new Set(raw.tags.map(String).map((tag) => tag.trim()).filter(Boolean))] : [],
+    tags: Array.isArray(raw.tags) ? normalizeTagList(raw.tags.map(String)) : [],
     date: typeof raw.date === "string" ? raw.date : "",
     published: raw.published === true,
   };
@@ -72,7 +72,6 @@ export function validatePicturePublishRequest(value: unknown, categorySlugs: Rea
   if (!mayKeepLegacyPaths && (!picture.file.startsWith(`${picture.id}/`) || !picture.preview.startsWith(`${picture.id}/`))) {
     throw new HttpError(400, "Picture assets must use their id directory");
   }
-  if (!categorySlugs.has(picture.category)) throw new HttpError(400, "Picture category is invalid");
   if (!Array.isArray(raw.tags) || !validDate(picture.date) || typeof raw.published !== "boolean") throw new HttpError(400, "Picture classification is invalid");
   if (!SHA_PATTERN.test(body.expectedManifestSha || "")) throw new HttpError(400, "expectedManifestSha must be a 40-character Git SHA");
   if (typeof body.isNew !== "boolean") throw new HttpError(400, "isNew must be true or false");
@@ -103,7 +102,6 @@ export function validatePicturePublishRequest(value: unknown, categorySlugs: Rea
 
 export async function publishPicture(
   input: PicturePublishRequest,
-  categorySlugs: ReadonlySet<string>,
   dependencies: PicturePublishDependencies = { request: githubRequest, repository: getRepository() },
 ) {
   const { owner, repo, branch } = dependencies.repository;
@@ -115,7 +113,6 @@ export async function publishPicture(
   if (manifestFile.encoding !== "base64") throw new HttpError(502, "Unsupported picture manifest encoding");
   const manifest = parsePictureManifest(
     JSON.parse(Buffer.from(manifestFile.content.replace(/\s/g, ""), "base64").toString("utf8")) as PictureManifest,
-    categorySlugs,
   );
   const existingIndex = manifest.pictures.findIndex((picture) => picture.id === input.picture.id);
   if (input.isNew && existingIndex >= 0) throw new HttpError(409, "Picture already exists; reload before editing");

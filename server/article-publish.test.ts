@@ -19,7 +19,6 @@ import {
 const VALID_MARKDOWN = `---
 title: Example article
 slug: example-article
-category: tech
 date: 2026-07-27
 updated: 2026-07-27
 tags:

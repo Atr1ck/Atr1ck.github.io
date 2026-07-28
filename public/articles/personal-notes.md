@@ -1,11 +1,10 @@
 ---
 title: 自己的碎碎念
 slug: personal-notes
-category: life
 date: '2024-12-09'
 updated: '2025-03-11'
 tags:
-  - life
+  - Life
 summary: "这几天感觉有些陷入内耗了，想做些什么却又没有动力，积压了一大堆的事情和考试复习（预习），上个周末又打了两天烤，毫无进展。 但好歹也算是找到了自己的目标和寒假要做的事： 吉他（\U0001F4B0已经攒的差不多了，然后下个月要猛猛吃恢复心情） 学车（时间不多..."
 cover: null
 published: false

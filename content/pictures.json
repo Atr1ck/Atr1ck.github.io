@@ -6,8 +6,9 @@
       "title": "124086849_p0 origin",
       "file": "124086849_p0 origin.png",
       "preview": "124086849_p0 origin.webp",
-      "category": "original",
-      "tags": [],
+      "tags": [
+        "Origin"
+      ],
       "date": "2025-03-05",
       "published": true
     },
@@ -16,8 +17,9 @@
       "title": "124326424_p0 origin",
       "file": "124326424_p0 origin.png",
       "preview": "124326424_p0 origin.webp",
-      "category": "original",
-      "tags": [],
+      "tags": [
+        "Origin"
+      ],
       "date": "2025-03-05",
       "published": true
     },
@@ -26,9 +28,9 @@
       "title": "124616731_p0 vtuber 结成昨奈",
       "file": "124616731_p0 vtuber 结成昨奈.png",
       "preview": "124616731_p0 vtuber 结成昨奈.webp",
-      "category": "vtuber",
       "tags": [
-        "结成昨奈"
+        "结成昨奈",
+        "Vtuber"
       ],
       "date": "2025-03-05",
       "published": true
@@ -38,8 +40,9 @@
       "title": "124928980_p0 origin",
       "file": "124928980_p0 origin.png",
       "preview": "124928980_p0 origin.webp",
-      "category": "original",
-      "tags": [],
+      "tags": [
+        "Origin"
+      ],
       "date": "2025-03-05",
       "published": true
     },
@@ -48,9 +51,9 @@
       "title": "illust_116857365_20241109_185637 pjsk saki",
       "file": "illust_116857365_20241109_185637 pjsk saki.jpg",
       "preview": "illust_116857365_20241109_185637 pjsk saki.webp",
-      "category": "project-sekai",
       "tags": [
-        "saki"
+        "Saki",
+        "Pjsk"
       ],
       "date": "2025-03-05",
       "published": true
@@ -60,8 +63,9 @@
       "title": "IMG_20241022_003017_653 origin",
       "file": "IMG_20241022_003017_653 origin.jpg",
       "preview": "IMG_20241022_003017_653 origin.webp",
-      "category": "original",
-      "tags": [],
+      "tags": [
+        "Origin"
+      ],
       "date": "2025-03-05",
       "published": true
     },
@@ -70,8 +74,9 @@
       "title": "IMG_20241029_001726_261 vtuber",
       "file": "IMG_20241029_001726_261 vtuber.png",
       "preview": "IMG_20241029_001726_261 vtuber.webp",
-      "category": "vtuber",
-      "tags": [],
+      "tags": [
+        "Vtuber"
+      ],
       "date": "2025-03-05",
       "published": true
     },
@@ -80,8 +85,9 @@
       "title": "IMG_20241031_165242_517 origin",
       "file": "IMG_20241031_165242_517 origin.png",
       "preview": "IMG_20241031_165242_517 origin.webp",
-      "category": "original",
-      "tags": [],
+      "tags": [
+        "Origin"
+      ],
       "date": "2025-03-05",
       "published": true
     },
@@ -90,8 +96,9 @@
       "title": "IMG_20241120_001009_851 origin",
       "file": "IMG_20241120_001009_851 origin.jpg",
       "preview": "IMG_20241120_001009_851 origin.webp",
-      "category": "original",
-      "tags": [],
+      "tags": [
+        "Origin"
+      ],
       "date": "2025-03-05",
       "published": true
     },
@@ -100,9 +107,9 @@
       "title": "IMG_7605 pjsk saki",
       "file": "IMG_7605 pjsk saki.JPEG",
       "preview": "IMG_7605 pjsk saki.webp",
-      "category": "project-sekai",
       "tags": [
-        "saki"
+        "Saki",
+        "Pjsk"
       ],
       "date": "2025-03-05",
       "published": true
@@ -112,8 +119,9 @@
       "title": "117357277 origin",
       "file": "117357277 origin.jpg",
       "preview": "117357277 origin.webp",
-      "category": "original",
-      "tags": [],
+      "tags": [
+        "Origin"
+      ],
       "date": "2024-12-05",
       "published": true
     },
@@ -122,8 +130,9 @@
       "title": "124847350 origin",
       "file": "124847350 origin.png",
       "preview": "124847350 origin.webp",
-      "category": "original",
-      "tags": [],
+      "tags": [
+        "Origin"
+      ],
       "date": "2024-12-05",
       "published": true
     },
@@ -132,7 +141,6 @@
       "title": "1733070020555 Naga",
       "file": "1733070020555 Naga.png",
       "preview": "1733070020555 Naga.webp",
-      "category": "uncategorized",
       "tags": [
         "Naga"
       ],
@@ -144,9 +152,9 @@
       "title": "IMG_0676 pjsk mfy",
       "file": "IMG_0676 pjsk mfy.JPEG",
       "preview": "IMG_0676 pjsk mfy.webp",
-      "category": "project-sekai",
       "tags": [
-        "mfy"
+        "Mfy",
+        "Pjsk"
       ],
       "date": "2024-12-05",
       "published": true
@@ -156,9 +164,9 @@
       "title": "IMG_0677 pjsk knd",
       "file": "IMG_0677 pjsk knd.JPEG",
       "preview": "IMG_0677 pjsk knd.webp",
-      "category": "project-sekai",
       "tags": [
-        "knd"
+        "Knd",
+        "Pjsk"
       ],
       "date": "2024-12-05",
       "published": true
@@ -168,9 +176,9 @@
       "title": "IMG_0678 pjsk ena",
       "file": "IMG_0678 pjsk ena.JPEG",
       "preview": "IMG_0678 pjsk ena.webp",
-      "category": "project-sekai",
       "tags": [
-        "ena"
+        "Ena",
+        "Pjsk"
       ],
       "date": "2024-12-05",
       "published": true
@@ -180,9 +188,9 @@
       "title": "IMG_0679 pjsk mzk",
       "file": "IMG_0679 pjsk mzk.JPEG",
       "preview": "IMG_0679 pjsk mzk.webp",
-      "category": "project-sekai",
       "tags": [
-        "mzk"
+        "Mzk",
+        "Pjsk"
       ],
       "date": "2024-12-05",
       "published": true
@@ -192,8 +200,9 @@
       "title": "IMG_20241202_175203_923 origin",
       "file": "IMG_20241202_175203_923 origin.jpg",
       "preview": "IMG_20241202_175203_923 origin.webp",
-      "category": "original",
-      "tags": [],
+      "tags": [
+        "Origin"
+      ],
       "date": "2024-12-05",
       "published": true
     },
@@ -202,7 +211,6 @@
       "title": "IMG_20241204_100939_689 HSR Herta",
       "file": "IMG_20241204_100939_689 HSR Herta.png",
       "preview": "IMG_20241204_100939_689 HSR Herta.webp",
-      "category": "games",
       "tags": [
         "HSR",
         "Herta"
@@ -215,8 +223,9 @@
       "title": "IMG_20241205_155707_322 origin",
       "file": "IMG_20241205_155707_322 origin.png",
       "preview": "IMG_20241205_155707_322 origin.webp",
-      "category": "original",
-      "tags": [],
+      "tags": [
+        "Origin"
+      ],
       "date": "2024-12-05",
       "published": true
     },
@@ -225,8 +234,9 @@
       "title": "IMG_20241205_161357_007 origin",
       "file": "IMG_20241205_161357_007 origin.jpg",
       "preview": "IMG_20241205_161357_007 origin.webp",
-      "category": "original",
-      "tags": [],
+      "tags": [
+        "Origin"
+      ],
       "date": "2024-12-05",
       "published": true
     },
@@ -235,9 +245,9 @@
       "title": "IMG_8907 pjsk nene",
       "file": "IMG_8907 pjsk nene.JPEG",
       "preview": "IMG_8907 pjsk nene.webp",
-      "category": "project-sekai",
       "tags": [
-        "nene"
+        "Nene",
+        "Pjsk"
       ],
       "date": "2024-12-05",
       "published": true
@@ -247,9 +257,9 @@
       "title": "IMG_8909 pjsk emu",
       "file": "IMG_8909 pjsk emu.JPEG",
       "preview": "IMG_8909 pjsk emu.webp",
-      "category": "project-sekai",
       "tags": [
-        "emu"
+        "Emu",
+        "Pjsk"
       ],
       "date": "2024-12-05",
       "published": true
@@ -259,9 +269,9 @@
       "title": "nene pjsk nene",
       "file": "nene pjsk nene.png",
       "preview": "nene pjsk nene.webp",
-      "category": "project-sekai",
       "tags": [
-        "nene"
+        "Nene",
+        "Pjsk"
       ],
       "date": "2024-12-05",
       "published": true

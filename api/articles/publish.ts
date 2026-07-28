@@ -4,7 +4,6 @@ import { getRepository } from "../../server/github.js";
 import { allowMethods, assertSameOrigin, sendError } from "../../server/http.js";
 import { assertCsrf, requireSession } from "../../server/session.js";
 import { assertProductionBranch } from "../../server/vercel.js";
-import { getRepositoryCategories } from "../../server/category-store.js";
 
 export default async function handler(request: VercelRequest, response: VercelResponse) {
   if (!allowMethods(request, response, ["POST"])) return;
@@ -14,8 +13,7 @@ export default async function handler(request: VercelRequest, response: VercelRe
     const session = await requireSession(request);
     assertCsrf(request, session);
     await assertProductionBranch(getRepository().branch);
-    const categories = await getRepositoryCategories();
-    const input = validatePublishRequest(request.body, new Set(categories.articles.map((category) => category.slug)));
+    const input = validatePublishRequest(request.body);
     const result = await publishArticle(input);
     response.status(202).json(result);
   } catch (error) {
