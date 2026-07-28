@@ -87,20 +87,39 @@ export default function Imageshow() {
   if (query.isError) return <div className="p-8 text-center">照片加载失败</div>;
 
   return (
-    <main className="mx-auto grid w-full max-w-screen-2xl gap-6 px-2 py-4 sm:px-4 sm:py-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:px-6">
-      <ContentFilterPanel
-        category={category}
-        categories={query.data?.categories.pictures || []}
-        count={pictures.length}
-        countLabel="张照片"
-        search={search}
-        searchPlaceholder="搜索照片"
-        tag={tag}
-        tags={tags}
-        onChange={updateFilter}
-        onReset={resetFilters}
-      />
-      <div className="min-w-0">
+    <main className="relative w-full px-2 py-4 sm:px-4 sm:py-6 lg:px-6">
+      <div className="pointer-events-none fixed left-4 top-20 z-30 hidden w-52 lg:block">
+        <div className="pointer-events-auto">
+          <ContentFilterPanel
+            category={category}
+            categories={query.data?.categories.pictures || []}
+            count={pictures.length}
+            countLabel="张照片"
+            search={search}
+            searchPlaceholder="搜索照片"
+            tag={tag}
+            tags={tags}
+            onChange={updateFilter}
+            onReset={resetFilters}
+            desktopClassName="w-full"
+          />
+        </div>
+      </div>
+      <div className="lg:hidden">
+        <ContentFilterPanel
+          category={category}
+          categories={query.data?.categories.pictures || []}
+          count={pictures.length}
+          countLabel="张照片"
+          search={search}
+          searchPlaceholder="搜索照片"
+          tag={tag}
+          tags={tags}
+          onChange={updateFilter}
+          onReset={resetFilters}
+        />
+      </div>
+      <div className="mx-auto min-w-0 max-w-screen-2xl lg:pl-56">
         <div className="columns-2 gap-3 md:columns-3 md:gap-4 xl:columns-4">
           {pictures.map((picture) => <PictureCard key={picture.id} picture={picture} categoryName={categoryNames.get(picture.category) || "未分类"} />)}
         </div>
