@@ -9,6 +9,8 @@ import redeployHandler from "../api/deployments/redeploy.js";
 import logoutHandler from "../api/auth/logout.js";
 import callbackHandler from "../api/auth/callback.js";
 import sessionHandler from "../api/auth/session.js";
+import picturePublishHandler from "../api/pictures/publish.js";
+import pictureListHandler from "../api/pictures.js";
 import { createSessionToken, SESSION_COOKIE } from "./session.js";
 
 process.env.APP_ORIGIN = "https://blog.example.com";
@@ -22,6 +24,7 @@ process.env.VERCEL_PROJECT_ID = "prj_test";
 const VALID_MARKDOWN = `---
 title: Handler test
 slug: handler-test
+category: tech
 date: 2026-07-27
 updated: 2026-07-27
 tags: []
@@ -71,6 +74,7 @@ function responsePair() {
 
 const writeHandlers = [
   ["publish", publishHandler],
+  ["picture publish", picturePublishHandler],
   ["redeploy", redeployHandler],
   ["logout", logoutHandler],
 ] as const;
@@ -120,6 +124,12 @@ test("article detail requires authentication before GitHub access", async () => 
     headers: {},
     query: { slug: "example" },
   } as unknown as VercelRequest, vercelResponse);
+  assert.equal(response.statusCode, 401);
+});
+
+test("picture listing requires authentication before GitHub access", async () => {
+  const { response, vercelResponse } = responsePair();
+  await pictureListHandler({ method: "GET", headers: {} } as VercelRequest, vercelResponse);
   assert.equal(response.statusCode, 401);
 });
 

@@ -7,6 +7,7 @@ export interface AdminSession {
 export interface AdminArticleSummary {
   title: string;
   slug: string;
+  category: string;
   date: string;
   updated: string;
   tags: string[];
@@ -41,5 +42,29 @@ export interface PublishResult {
   commitUrl: string;
   articleSha: string;
   articlePath: string;
+  status: "submitted";
+}
+
+export interface AdminPicture {
+  id: string;
+  title: string;
+  file: string;
+  preview: string;
+  category: string;
+  tags: string[];
+  date: string;
+  published: boolean;
+}
+
+export interface AdminPictureList {
+  manifestSha: string;
+  pictures: AdminPicture[];
+}
+
+export interface PicturePublishResult {
+  commitSha: string;
+  commitUrl: string;
+  manifestSha: string;
+  pictureId: string;
   status: "submitted";
 }

@@ -1,8 +1,9 @@
 ---
 title: 测试
 slug: test
-date: 2026-07-27
-updated: 2026-07-27
+category: uncategorized
+date: '2026-07-27'
+updated: '2026-07-27'
 tags:
   - Test
 summary: 测试文章

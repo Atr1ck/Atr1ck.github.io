@@ -1,11 +1,12 @@
 ---
 title: 碎碎念
 slug: job-search-notes
-date: 2025-12-17
-updated: 2026-07-27
+category: life
+date: '2025-12-17'
+updated: '2026-07-27'
 tags:
   - Life
-summary: ""
+summary: ''
 cover: null
 published: true
 ---

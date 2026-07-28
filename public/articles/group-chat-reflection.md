@@ -1,6 +1,7 @@
 ---
 title: 群内小事一则
 slug: group-chat-reflection
+category: reviews
 date: '2024-12-13'
 updated: '2025-03-11'
 tags:

@@ -1,12 +1,13 @@
 ---
 title: 关于消除可选链
 slug: optional-chaining-bundle-size
-date: 2025-12-20
-updated: 2026-07-27
+category: tech
+date: '2025-12-20'
+updated: '2026-07-27'
 tags:
   - React
   - Typescript
-summary: ""
+summary: ''
 cover: null
 published: true
 ---

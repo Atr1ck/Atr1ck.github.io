@@ -3,6 +3,7 @@ import { execFileSync } from "node:child_process";
 import { statSync } from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { CATEGORY_SLUG_PATTERN } from "./category-content.mjs";
 
 export const ARTICLES_DIRECTORY = path.resolve("public/articles");
 export const ARTICLES_OUTPUT = path.resolve("public/json/articles.json");
@@ -56,11 +57,12 @@ export function normalizeDate(value, field, fileName, errors) {
   return `${String(year).padStart(4, "0")}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
-export function validateArticle(article) {
+export function validateArticle(article, categorySlugs = null) {
   const { data, content, fileName } = article;
   const errors = [];
   const title = typeof data.title === "string" ? data.title.trim() : "";
   const slug = typeof data.slug === "string" ? data.slug.trim() : "";
+  const category = typeof data.category === "string" ? data.category.trim() : "";
   const summary = typeof data.summary === "string" ? data.summary.trim() : "";
   const cover = typeof data.cover === "string" ? data.cover.trim() : "";
   const tags = Array.isArray(data.tags)
@@ -75,6 +77,11 @@ export function validateArticle(article) {
   }
   if (typeof data.published !== "boolean") {
     errors.push(`${fileName}: published must be true or false`);
+  }
+  if (!CATEGORY_SLUG_PATTERN.test(category)) {
+    errors.push(`${fileName}: category is required and must use a stable slug`);
+  } else if (categorySlugs && !categorySlugs.has(category)) {
+    errors.push(`${fileName}: category "${category}" does not exist`);
   }
   if (data.summary != null && typeof data.summary !== "string") {
     errors.push(`${fileName}: summary must be a string`);
@@ -94,6 +101,7 @@ export function validateArticle(article) {
     value: {
       title,
       slug,
+      category,
       date,
       updated,
       tags,

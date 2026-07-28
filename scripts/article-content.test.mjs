@@ -32,6 +32,7 @@ test("validates the complete article contract", () => {
   const source = `---
 title: Example
 slug: example-post
+category: tech
 date: 2026-07-27
 updated: 2026-07-27
 tags:
@@ -55,6 +56,7 @@ test("accepts an omitted or empty optional summary", () => {
   const source = `---
 title: Example
 slug: example-post
+category: tech
 date: 2026-07-27
 updated: 2026-07-27
 tags: []
@@ -76,6 +78,7 @@ test("rejects a non-string optional summary", () => {
   const source = `---
 title: Example
 slug: example-post
+category: tech
 date: 2026-07-27
 updated: 2026-07-27
 tags: []
@@ -93,6 +96,7 @@ test("rejects unsafe slugs and cover paths", () => {
   const source = `---
 title: Example
 slug: Example Post
+category: tech
 date: 2026-07-27
 updated: 2026-07-27
 tags: []

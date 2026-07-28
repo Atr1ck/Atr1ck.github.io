@@ -91,7 +91,7 @@ function isArticleImagePath(path: string, slug: string, repositoryPath: boolean)
   return path.startsWith(prefix) && isSafeImageName(path.slice(prefix.length));
 }
 
-export function validatePublishRequest(value: unknown): PublishRequest {
+export function validatePublishRequest(value: unknown, categorySlugs?: ReadonlySet<string>): PublishRequest {
   if (!value || typeof value !== "object") throw new HttpError(400, "Invalid request body");
   if (Buffer.byteLength(JSON.stringify(value), "utf8") > MAX_PUBLISH_REQUEST_BYTES) {
     throw new HttpError(413, "Publish request must not exceed 4MB");
@@ -116,6 +116,10 @@ export function validatePublishRequest(value: unknown): PublishRequest {
   }
   if (typeof parsed.data.published !== "boolean") {
     throw new HttpError(400, "Frontmatter published must be true or false");
+  }
+  const category = typeof parsed.data.category === "string" ? parsed.data.category.trim() : "";
+  if (!SLUG_PATTERN.test(category) || (categorySlugs && !categorySlugs.has(category))) {
+    throw new HttpError(400, "Frontmatter category is invalid");
   }
   if (parsed.data.summary != null && typeof parsed.data.summary !== "string") {
     throw new HttpError(400, "Frontmatter summary must be a string");

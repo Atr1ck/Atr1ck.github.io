@@ -1,6 +1,7 @@
 ---
 title: 自己的碎碎念
 slug: personal-notes
+category: life
 date: '2024-12-09'
 updated: '2025-03-11'
 tags:

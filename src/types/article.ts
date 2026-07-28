@@ -1,6 +1,7 @@
 interface Article {
   title: string;
   slug: string;
+  category: string;
   date: string;
   updated: string;
   tags: string[];

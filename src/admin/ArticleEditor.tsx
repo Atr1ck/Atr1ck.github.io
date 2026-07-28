@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import MarkdownRenderer from "../components/Articles/MarkdownRenderer";
-import { getArticle, getDeployment, publishArticle, redeploy } from "./api";
+import { getArticle, getCategories, getDeployment, publishArticle, redeploy } from "./api";
 import { processImage, selectedImagePayload } from "./image-processing";
 import type { ProcessedImage } from "./image-processing";
 import { useAdminContext } from "./context";
@@ -30,6 +30,7 @@ import {
 interface EditorFields {
   title: string;
   slug: string;
+  category: string;
   date: string;
   updated: string;
   tags: string;
@@ -49,6 +50,7 @@ const today = () => new Date().toISOString().slice(0, 10);
 const EMPTY_FIELDS: EditorFields = {
   title: "",
   slug: "",
+  category: "uncategorized",
   date: today(),
   updated: today(),
   tags: "",
@@ -68,6 +70,7 @@ function fieldsFromMarkdown(markdown: string): EditorFields {
   return {
     title: typeof parsed.data.title === "string" ? parsed.data.title : "",
     slug: typeof parsed.data.slug === "string" ? parsed.data.slug : "",
+    category: typeof parsed.data.category === "string" ? parsed.data.category : "uncategorized",
     date: dateString(parsed.data.date) || today(),
     updated: dateString(parsed.data.updated) || today(),
     tags: Array.isArray(parsed.data.tags) ? parsed.data.tags.join(", ") : "",
@@ -82,6 +85,7 @@ function createMarkdown(fields: EditorFields): string {
   return stringifyFrontmatter(fields.content.trimStart(), {
     title: fields.title.trim(),
     slug: fields.slug.trim(),
+    category: fields.category,
     date: fields.date,
     updated: fields.updated,
     tags: fields.tags.split(",").map((tag) => tag.trim()).filter(Boolean),
@@ -129,6 +133,7 @@ export default function ArticleEditor() {
     queryFn: () => getArticle(routeSlug!),
     enabled: !isNew,
   });
+  const categoriesQuery = useQuery({ queryKey: ["categories"], queryFn: getCategories });
 
   const draftKey = `atr1ck-admin-draft:${routeSlug || "new"}`;
   useEffect(() => {
@@ -236,6 +241,7 @@ export default function ArticleEditor() {
     const result: string[] = [];
     if (!fields.title.trim()) result.push("标题不能为空");
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(fields.slug)) result.push("slug 只能包含小写字母、数字和连字符");
+    if (!categoriesQuery.data?.articles.some((category) => category.slug === fields.category)) result.push("请选择有效的文章分类");
     if (fields.summary.trim().length > 240) result.push("摘要不能超过 240 字符");
     if (!fields.content.trim()) result.push("正文不能为空");
     if (new TextEncoder().encode(publishMarkdown).byteLength > MAX_MARKDOWN_BYTES) result.push("Markdown 不能超过 256KB");
@@ -244,7 +250,7 @@ export default function ArticleEditor() {
     if (publishRequestBytes > MAX_PUBLISH_REQUEST_BYTES) result.push("发布请求不能超过 4MB，请压缩或移除图片");
     if (fields.cover && !fields.cover.startsWith(`/articles/images/${fields.slug}/`)) result.push("封面必须使用当前文章图片目录");
     return result;
-  }, [fields, publishMarkdown, publishRequestBytes, selectedImages, totalImageBytes]);
+  }, [categoriesQuery.data, fields, publishMarkdown, publishRequestBytes, selectedImages, totalImageBytes]);
 
   const publishMutation = useMutation({
     mutationFn: () => publishArticle(session.csrfToken, publishPayload),
@@ -362,6 +368,7 @@ export default function ArticleEditor() {
         <label className="admin-field"><span>标题</span><input className="input input-sm w-full rounded-md" value={fields.title} onChange={(event) => update("title", event.target.value)} /></label>
         <label className="admin-field"><span>Slug</span><input className="input input-sm w-full rounded-md font-mono" disabled={!isNew} value={fields.slug} onChange={(event) => changeSlug(event.target.value.toLowerCase())} /></label>
         <label className="admin-field"><span>发布日期</span><input className="input input-sm w-full rounded-md" type="date" value={fields.date} onChange={(event) => update("date", event.target.value)} /></label>
+        <label className="admin-field"><span>分类</span><select className="select select-sm w-full rounded-md" value={fields.category} onChange={(event) => update("category", event.target.value)}>{categoriesQuery.data?.articles.map((category) => <option key={category.slug} value={category.slug}>{category.name}</option>)}</select></label>
         <label className="admin-field"><span>可见性</span><span className="flex h-8 items-center gap-2"><input className="toggle toggle-sm" type="checkbox" checked={fields.published} onChange={(event) => update("published", event.target.checked)} />{fields.published ? "公开" : "下线"}</span></label>
         <label className="admin-field md:col-span-2"><span>标签（逗号分隔）</span><input className="input input-sm w-full rounded-md" value={fields.tags} onChange={(event) => update("tags", event.target.value)} /></label>
         <label className="admin-field md:col-span-2"><span>摘要（可选） <small>{fields.summary.length}/240</small></span><input className="input input-sm w-full rounded-md" maxLength={240} value={fields.summary} onChange={(event) => update("summary", event.target.value)} /></label>

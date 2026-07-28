@@ -6,6 +6,7 @@ import { createServer } from "vite";
 
 const root = process.cwd();
 const articlesDirectory = path.join(root, "public/articles");
+const picturesManifest = path.join(root, "content/pictures.json");
 
 function json(response, status, body) {
   response.statusCode = status;
@@ -26,6 +27,7 @@ async function readArticles() {
     return {
       title: parsed.data.title,
       slug: parsed.data.slug,
+      category: parsed.data.category,
       date: dateString(parsed.data.date),
       updated: dateString(parsed.data.updated),
       tags: parsed.data.tags || [],
@@ -39,6 +41,14 @@ async function readArticles() {
       markdown,
     };
   }));
+}
+
+async function readPictures() {
+  const source = await readFile(picturesManifest, "utf8");
+  return {
+    manifestSha: createHash("sha1").update(source).digest("hex"),
+    pictures: JSON.parse(source).pictures,
+  };
 }
 
 const previewApi = {
@@ -62,6 +72,9 @@ const previewApi = {
         const article = articles.find((item) => item.slug === url.searchParams.get("slug"));
         return article ? json(response, 200, { article }) : json(response, 404, { error: "Article not found" });
       }
+      if (request.method === "GET" && url.pathname === "/api/pictures") {
+        return json(response, 200, await readPictures());
+      }
       const commitSha = url.searchParams.get("commitSha");
       if (request.method === "GET" && url.pathname === "/api/deployment" && /^[a-f0-9]{40}$/.test(commitSha || "")) {
         return json(response, 200, {
@@ -79,6 +92,15 @@ const previewApi = {
           commitUrl: "https://github.com/Atr1ck/Atr1ck.github.io",
           articleSha: "d".repeat(40),
           articlePath: "local-preview",
+          status: "submitted",
+        });
+      }
+      if (request.method === "POST" && url.pathname === "/api/pictures/publish") {
+        return json(response, 202, {
+          commitSha: "c".repeat(40),
+          commitUrl: "https://github.com/Atr1ck/Atr1ck.github.io",
+          manifestSha: "d".repeat(40),
+          pictureId: "local-preview",
           status: "submitted",
         });
       }

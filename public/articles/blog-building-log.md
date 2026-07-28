@@ -1,11 +1,12 @@
 ---
 title: 个人Blog绝赞手搓中
 slug: blog-building-log
-date: 2024-11-25
-updated: 2026-07-27
+category: updates
+date: '2024-11-25'
+updated: '2026-07-27'
 tags:
   - updatelog
-summary: ""
+summary: ''
 cover: null
 published: true
 ---

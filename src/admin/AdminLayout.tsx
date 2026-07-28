@@ -1,6 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { LogIn, LogOut, PenLine } from "lucide-react";
-import { Link, Outlet } from "react-router-dom";
+import { Images, LogIn, LogOut, PenLine } from "lucide-react";
+import { Link, NavLink, Outlet } from "react-router-dom";
 import { getSession, logout } from "./api";
 import type { AdminContext } from "./context";
 
@@ -45,9 +45,15 @@ export default function AdminLayout() {
     <div className="admin-shell min-h-screen bg-base-200 text-base-content">
       <header className="sticky top-0 z-40 border-b border-base-300 bg-base-100/95 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-screen-2xl items-center justify-between px-4 sm:px-6">
-          <Link to="/admin" className="flex items-center gap-2 font-semibold">
-            <PenLine className="h-5 w-5 text-primary" /> 文章管理
-          </Link>
+          <div className="flex items-center gap-2 sm:gap-5">
+            <Link to="/admin" className="hidden items-center gap-2 font-semibold sm:flex">
+              <PenLine className="h-5 w-5 text-primary" /> 内容管理
+            </Link>
+            <nav className="flex items-center gap-1 text-sm" aria-label="后台内容导航">
+              <NavLink end to="/admin" className={({ isActive }) => `btn btn-sm rounded-md ${isActive ? "btn-neutral" : "btn-ghost"}`}><PenLine className="h-4 w-4" />文章</NavLink>
+              <NavLink to="/admin/pictures" className={({ isActive }) => `btn btn-sm rounded-md ${isActive ? "btn-neutral" : "btn-ghost"}`}><Images className="h-4 w-4" />照片</NavLink>
+            </nav>
+          </div>
           <div className="flex items-center gap-3 text-sm">
             <img className="h-7 w-7 rounded-full" src={session.user?.avatarUrl} alt="" />
             <span className="hidden sm:inline">{session.user?.login}</span>

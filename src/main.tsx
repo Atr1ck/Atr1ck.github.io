@@ -15,6 +15,8 @@ const Loading = lazy(() => import('./components/Load/Load.tsx'))
 const AdminLayout = lazy(() => import('./admin/AdminLayout.tsx'));
 const AdminDashboard = lazy(() => import('./admin/AdminDashboard.tsx'));
 const ArticleEditor = lazy(() => import('./admin/ArticleEditor.tsx'));
+const PictureDashboard = lazy(() => import('./admin/PictureDashboard.tsx'));
+const PictureEditor = lazy(() => import('./admin/PictureEditor.tsx'));
 
 if (["/", "/index.html"].includes(window.location.pathname) && window.location.hash.startsWith("#/")) {
   window.history.replaceState(null, "", window.location.hash.slice(1));
@@ -61,6 +63,9 @@ const router = createBrowserRouter([
       { index: true, element: <Suspense fallback={<Loading />}><AdminDashboard /></Suspense> },
       { path: "articles/new", element: <Suspense fallback={<Loading />}><ArticleEditor /></Suspense> },
       { path: "articles/:slug", element: <Suspense fallback={<Loading />}><ArticleEditor /></Suspense> },
+      { path: "pictures", element: <Suspense fallback={<Loading />}><PictureDashboard /></Suspense> },
+      { path: "pictures/new", element: <Suspense fallback={<Loading />}><PictureEditor /></Suspense> },
+      { path: "pictures/:id", element: <Suspense fallback={<Loading />}><PictureEditor /></Suspense> },
     ],
   },
   { path: "*", element: <Navigate to="/articleList" replace /> },

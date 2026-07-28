@@ -1,10 +1,13 @@
 import type {
   AdminArticle,
   AdminArticleSummary,
+  AdminPictureList,
   AdminSession,
   DeploymentStatus,
+  PicturePublishResult,
   PublishResult,
 } from "./types";
+import type { CategoryConfig } from "../types/content";
 
 export class ApiError extends Error {
   constructor(public readonly status: number, message: string) {
@@ -34,6 +37,10 @@ export function getSession() {
   return requestJson<AdminSession>("/api/auth/session");
 }
 
+export function getCategories() {
+  return requestJson<CategoryConfig>("/json/categories.json");
+}
+
 export async function logout(csrfToken: string) {
   const response = await fetch("/api/auth/logout", {
     method: "POST",
@@ -47,6 +54,10 @@ export async function listArticles() {
   return result.articles;
 }
 
+export function listPictures() {
+  return requestJson<AdminPictureList>("/api/pictures");
+}
+
 export async function getArticle(slug: string) {
   const result = await requestJson<{ article: AdminArticle }>(`/api/article?slug=${encodeURIComponent(slug)}`);
   return result.article;
@@ -57,6 +68,22 @@ export function publishArticle(
   payload: { slug: string; markdown: string; expectedSha: string | null; assets: Array<{ path: string; contentBase64: string; preserveOriginal: boolean }> },
 ) {
   return requestJson<PublishResult>("/api/articles/publish", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "x-csrf-token": csrfToken },
+    body: JSON.stringify(payload),
+  });
+}
+
+export function publishPicture(
+  csrfToken: string,
+  payload: {
+    picture: AdminPictureList["pictures"][number];
+    expectedManifestSha: string;
+    isNew: boolean;
+    assets: Array<{ path: string; contentBase64: string; preserveOriginal: boolean }>;
+  },
+) {
+  return requestJson<PicturePublishResult>("/api/pictures/publish", {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-csrf-token": csrfToken },
     body: JSON.stringify(payload),

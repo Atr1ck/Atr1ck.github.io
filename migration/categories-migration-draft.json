@@ -1,5 +1,56 @@
 {
-  "version": 1,
+  "generatedAt": "2026-07-28T02:21:41.140Z",
+  "status": "applied",
+  "articles": [
+    {
+      "file": "public/articles/blog-building-log.md",
+      "slug": "blog-building-log",
+      "title": "个人Blog绝赞手搓中",
+      "category": "updates"
+    },
+    {
+      "file": "public/articles/dairy-20260727.md",
+      "slug": "dairy-20260727",
+      "title": "今日小记（7.27）",
+      "category": "life"
+    },
+    {
+      "file": "public/articles/group-chat-reflection.md",
+      "slug": "group-chat-reflection",
+      "title": "群内小事一则",
+      "category": "reviews"
+    },
+    {
+      "file": "public/articles/job-search-notes.md",
+      "slug": "job-search-notes",
+      "title": "碎碎念",
+      "category": "life"
+    },
+    {
+      "file": "public/articles/optional-chaining-bundle-size.md",
+      "slug": "optional-chaining-bundle-size",
+      "title": "关于消除可选链",
+      "category": "tech"
+    },
+    {
+      "file": "public/articles/personal-notes.md",
+      "slug": "personal-notes",
+      "title": "自己的碎碎念",
+      "category": "life"
+    },
+    {
+      "file": "public/articles/seed-of-song-review.md",
+      "slug": "seed-of-song-review",
+      "title": "播种之谣短评",
+      "category": "reviews"
+    },
+    {
+      "file": "public/articles/test.md",
+      "slug": "test",
+      "title": "测试",
+      "category": "uncategorized"
+    }
+  ],
   "pictures": [
     {
       "id": "124086849-p0-origin-89fb9ab",

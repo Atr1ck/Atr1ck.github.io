@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "articles": [
+    {
+      "slug": "tech",
+      "name": "技术",
+      "order": 10
+    },
+    {
+      "slug": "life",
+      "name": "生活",
+      "order": 20
+    },
+    {
+      "slug": "reviews",
+      "name": "评论",
+      "order": 30
+    },
+    {
+      "slug": "updates",
+      "name": "建站记录",
+      "order": 40
+    },
+    {
+      "slug": "uncategorized",
+      "name": "未分类",
+      "order": 999
+    }
+  ],
+  "pictures": [
+    {
+      "slug": "original",
+      "name": "原创与杂图",
+      "order": 10
+    },
+    {
+      "slug": "project-sekai",
+      "name": "世界计划",
+      "order": 20
+    },
+    {
+      "slug": "vtuber",
+      "name": "VTuber",
+      "order": 30
+    },
+    {
+      "slug": "games",
+      "name": "游戏",
+      "order": 40
+    },
+    {
+      "slug": "uncategorized",
+      "name": "未分类",
+      "order": 999
+    }
+  ]
+}

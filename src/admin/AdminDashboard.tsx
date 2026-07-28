@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ExternalLink, FilePlus2, Search } from "lucide-react";
 import { Link } from "react-router-dom";
-import { listArticles } from "./api";
+import { getCategories, listArticles } from "./api";
 import DeploymentBadge from "./DeploymentBadge";
 
 type Visibility = "all" | "published" | "hidden";
@@ -10,16 +10,20 @@ type Visibility = "all" | "published" | "hidden";
 export default function AdminDashboard() {
   const [search, setSearch] = useState("");
   const [visibility, setVisibility] = useState<Visibility>("all");
+  const [category, setCategory] = useState("all");
   const query = useQuery({ queryKey: ["admin-articles"], queryFn: listArticles });
+  const categoriesQuery = useQuery({ queryKey: ["categories"], queryFn: getCategories });
   const articles = useMemo(() => {
     const term = search.trim().toLowerCase();
     return (query.data || []).filter((article) => {
       const matchesVisibility = visibility === "all" || (visibility === "published" ? article.published : !article.published);
+      const matchesCategory = category === "all" || article.category === category;
       const matchesSearch = !term || [article.title, article.slug, article.summary, ...article.tags]
         .some((value) => value.toLowerCase().includes(term));
-      return matchesVisibility && matchesSearch;
+      return matchesVisibility && matchesCategory && matchesSearch;
     });
-  }, [query.data, search, visibility]);
+  }, [category, query.data, search, visibility]);
+  const categoryNames = new Map(categoriesQuery.data?.articles.map((item) => [item.slug, item.name]) || []);
 
   return (
     <main className="mx-auto w-full max-w-screen-2xl px-4 py-6 sm:px-6">
@@ -49,6 +53,7 @@ export default function AdminDashboard() {
             </button>
           ))}
         </div>
+        <select className="select select-sm rounded-md" aria-label="文章分类筛选" value={category} onChange={(event) => setCategory(event.target.value)}><option value="all">全部分类</option>{categoriesQuery.data?.articles.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}</select>
       </div>
 
       {query.isLoading && <p className="py-12 text-center text-base-content/60">正在读取 GitHub 内容...</p>}
@@ -61,7 +66,7 @@ export default function AdminDashboard() {
       {!query.isLoading && !query.isError && (
         <div className="mt-4 overflow-x-auto border border-base-300 bg-base-100">
           <table className="table table-sm min-w-[920px]">
-            <thead><tr><th>文章</th><th>状态</th><th>日期</th><th>最后更新</th><th>部署</th><th className="text-right">操作</th></tr></thead>
+            <thead><tr><th>文章</th><th>分类</th><th>状态</th><th>日期</th><th>最后更新</th><th>部署</th><th className="text-right">操作</th></tr></thead>
             <tbody>
               {articles.map((article) => (
                 <tr key={article.slug}>
@@ -69,6 +74,7 @@ export default function AdminDashboard() {
                     <Link className="font-medium hover:text-primary" to={`/admin/articles/${article.slug}`}>{article.title}</Link>
                     <div className="mt-1 truncate font-mono text-xs text-base-content/50">{article.slug}</div>
                   </td>
+                  <td>{categoryNames.get(article.category) || "未分类"}</td>
                   <td><span className={`admin-status ${article.published ? "admin-status-ready" : ""}`}>{article.published ? "公开" : "已下线"}</span></td>
                   <td>{article.date}</td>
                   <td>{article.updated}</td>
@@ -81,7 +87,7 @@ export default function AdminDashboard() {
                   </td>
                 </tr>
               ))}
-              {articles.length === 0 && <tr><td colSpan={6} className="py-10 text-center text-base-content/55">没有符合条件的文章</td></tr>}
+              {articles.length === 0 && <tr><td colSpan={7} className="py-10 text-center text-base-content/55">没有符合条件的文章</td></tr>}
             </tbody>
           </table>
         </div>
