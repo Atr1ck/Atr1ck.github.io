@@ -88,7 +88,7 @@ export default function Imageshow() {
 
   return (
     <main className="relative w-full px-2 py-4 sm:px-4 sm:py-6 lg:px-6">
-      <div className="pointer-events-none fixed left-4 top-20 z-30 hidden w-52 lg:block">
+      <div className="pointer-events-none fixed left-4 top-20 z-30 hidden w-48 lg:block">
         <div className="pointer-events-auto">
           <ContentFilterPanel
             category={category}
@@ -119,7 +119,7 @@ export default function Imageshow() {
           onReset={resetFilters}
         />
       </div>
-      <div className="mx-auto min-w-0 max-w-screen-2xl lg:pl-56">
+      <div className="mx-auto min-w-0 max-w-4xl">
         <div className="columns-2 gap-3 md:columns-3 md:gap-4 xl:columns-4">
           {pictures.map((picture) => <PictureCard key={picture.id} picture={picture} categoryName={categoryNames.get(picture.category) || "未分类"} />)}
         </div>
