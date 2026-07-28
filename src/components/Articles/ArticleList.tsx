@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import type { ArticleIndex } from "../../types/article";
 import type { CategoryConfig } from "../../types/content";
+import ContentFilterPanel from "../Filters/ContentFilterPanel";
 import Loading from "../Load/Load";
 
 async function loadArticleList() {
@@ -47,34 +47,52 @@ export default function ArticleList() {
     else next.set(key, value);
     setSearchParams(next);
   };
+  const resetFilters = () => {
+    const next = new URLSearchParams(searchParams);
+    ["category", "tag", "q"].forEach((key) => next.delete(key));
+    setSearchParams(next);
+  };
 
   if (query.isLoading) return <Loading />;
   if (query.isError) return <div className="p-8 text-center">文章列表加载失败</div>;
 
   return (
-    <main className="w-full">
-      <div className="border-b border-base-300/70 bg-base-100/90 px-3 py-3 backdrop-blur-md sm:px-6">
-        <div className="mx-auto flex max-w-4xl flex-col gap-2 sm:flex-row sm:items-center">
-          <label className="input input-sm flex min-w-0 flex-1 items-center gap-2 rounded-md bg-base-100">
-            <Search className="h-4 w-4 opacity-55" />
-            <input value={search} onChange={(event) => updateFilter("q", event.target.value)} placeholder="搜索文章" />
-          </label>
-          <select className="select select-sm rounded-md" aria-label="文章分类" value={category} onChange={(event) => updateFilter("category", event.target.value)}>
-            <option value="all">全部分类</option>
-            {query.data?.categories.articles.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}
-          </select>
-          <select className="select select-sm rounded-md" aria-label="文章标签" value={tag} onChange={(event) => updateFilter("tag", event.target.value)}>
-            <option value="all">全部标签</option>
-            {tags.map((item) => <option key={item} value={item}>#{item}</option>)}
-          </select>
-          <span className="shrink-0 text-xs text-base-content/55">{articles.length} 篇</span>
+    <main className="relative w-full px-2 py-4 sm:px-4 sm:py-6 lg:px-6">
+      <div className="pointer-events-none fixed left-4 top-20 z-30 hidden w-52 lg:block">
+        <div className="pointer-events-auto">
+          <ContentFilterPanel
+            category={category}
+            categories={query.data?.categories.articles || []}
+            count={articles.length}
+            countLabel="篇文章"
+            search={search}
+            searchPlaceholder="搜索文章"
+            tag={tag}
+            tags={tags}
+            onChange={updateFilter}
+            onReset={resetFilters}
+            desktopClassName="w-full"
+          />
         </div>
       </div>
-
-      <div className="flex flex-col items-center">
+      <div className="mx-auto flex w-full max-w-3xl flex-col items-center">
+        <div className="lg:hidden">
+          <ContentFilterPanel
+            category={category}
+            categories={query.data?.categories.articles || []}
+            count={articles.length}
+            countLabel="篇文章"
+            search={search}
+            searchPlaceholder="搜索文章"
+            tag={tag}
+            tags={tags}
+            onChange={updateFilter}
+            onReset={resetFilters}
+          />
+        </div>
         {articles.map((article) => (
           <article
-            className="my-3 flex w-[calc(100%_-_1rem)] max-w-4xl cursor-pointer flex-col rounded-lg border border-base-300/70 bg-base-100/95 p-4 text-base-content shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md sm:my-4 sm:p-6"
+            className="mb-4 flex w-full max-w-4xl cursor-pointer flex-col rounded-lg border border-base-300/70 bg-base-100/95 p-4 text-base-content shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md sm:mb-5 sm:p-6"
             key={article.slug}
             onClick={() => navigate(`/articles/${article.slug}`)}
           >

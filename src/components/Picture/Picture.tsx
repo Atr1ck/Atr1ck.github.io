@@ -1,8 +1,9 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Download, Search, X } from "lucide-react";
+import { Download, X } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import type { CategoryConfig, PictureIndex, PictureItem } from "../../types/content";
+import ContentFilterPanel from "../Filters/ContentFilterPanel";
 import Loading from "../Load/Load";
 
 function assetUrl(path: string) {
@@ -76,24 +77,35 @@ export default function Imageshow() {
     else next.set(key, value);
     setSearchParams(next);
   };
+  const resetFilters = () => {
+    const next = new URLSearchParams(searchParams);
+    ["category", "tag", "q"].forEach((key) => next.delete(key));
+    setSearchParams(next);
+  };
 
   if (query.isLoading) return <Loading />;
   if (query.isError) return <div className="p-8 text-center">照片加载失败</div>;
 
   return (
-    <main className="w-full">
-      <div className="border-b border-base-300/70 bg-base-100/90 px-3 py-3 backdrop-blur-md sm:px-6">
-        <div className="mx-auto flex max-w-screen-2xl flex-col gap-2 sm:flex-row sm:items-center">
-          <label className="input input-sm flex min-w-0 flex-1 items-center gap-2 rounded-md bg-base-100"><Search className="h-4 w-4 opacity-55" /><input value={search} onChange={(event) => updateFilter("q", event.target.value)} placeholder="搜索照片" /></label>
-          <select className="select select-sm rounded-md" aria-label="照片分类" value={category} onChange={(event) => updateFilter("category", event.target.value)}><option value="all">全部分类</option>{query.data?.categories.pictures.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}</select>
-          <select className="select select-sm rounded-md" aria-label="照片标签" value={tag} onChange={(event) => updateFilter("tag", event.target.value)}><option value="all">全部标签</option>{tags.map((item) => <option key={item} value={item}>#{item}</option>)}</select>
-          <span className="shrink-0 text-xs text-base-content/55">{pictures.length} 张</span>
+    <main className="mx-auto grid w-full max-w-screen-2xl gap-6 px-2 py-4 sm:px-4 sm:py-6 lg:grid-cols-[240px_minmax(0,1fr)] lg:px-6">
+      <ContentFilterPanel
+        category={category}
+        categories={query.data?.categories.pictures || []}
+        count={pictures.length}
+        countLabel="张照片"
+        search={search}
+        searchPlaceholder="搜索照片"
+        tag={tag}
+        tags={tags}
+        onChange={updateFilter}
+        onReset={resetFilters}
+      />
+      <div className="min-w-0">
+        <div className="columns-2 gap-3 md:columns-3 md:gap-4 xl:columns-4">
+          {pictures.map((picture) => <PictureCard key={picture.id} picture={picture} categoryName={categoryNames.get(picture.category) || "未分类"} />)}
         </div>
+        {pictures.length === 0 && <p className="py-16 text-center text-sm text-base-content/55">没有符合条件的照片</p>}
       </div>
-      <div className="columns-2 gap-3 px-2 pt-5 md:columns-3 md:gap-4 xl:columns-4">
-        {pictures.map((picture) => <PictureCard key={picture.id} picture={picture} categoryName={categoryNames.get(picture.category) || "未分类"} />)}
-      </div>
-      {pictures.length === 0 && <p className="py-16 text-center text-sm text-base-content/55">没有符合条件的照片</p>}
     </main>
   );
 }

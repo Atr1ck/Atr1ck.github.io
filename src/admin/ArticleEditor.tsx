@@ -364,15 +364,29 @@ export default function ArticleEditor() {
 
       {(message || errors.length > 0) && <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm"><span className="text-base-content/65">{message}</span>{errors.map((error) => <span key={error} className="text-error">{error}</span>)}</div>}
 
-      <section className="mt-4 grid gap-4 border-b border-base-300 pb-5 md:grid-cols-2 xl:grid-cols-4">
-        <label className="admin-field"><span>标题</span><input className="input input-sm w-full rounded-md" value={fields.title} onChange={(event) => update("title", event.target.value)} /></label>
-        <label className="admin-field"><span>Slug</span><input className="input input-sm w-full rounded-md font-mono" disabled={!isNew} value={fields.slug} onChange={(event) => changeSlug(event.target.value.toLowerCase())} /></label>
-        <label className="admin-field"><span>发布日期</span><input className="input input-sm w-full rounded-md" type="date" value={fields.date} onChange={(event) => update("date", event.target.value)} /></label>
-        <label className="admin-field"><span>分类</span><select className="select select-sm w-full rounded-md" value={fields.category} onChange={(event) => update("category", event.target.value)}>{categoriesQuery.data?.articles.map((category) => <option key={category.slug} value={category.slug}>{category.name}</option>)}</select></label>
-        <label className="admin-field"><span>可见性</span><span className="flex h-8 items-center gap-2"><input className="toggle toggle-sm" type="checkbox" checked={fields.published} onChange={(event) => update("published", event.target.checked)} />{fields.published ? "公开" : "下线"}</span></label>
-        <label className="admin-field md:col-span-2"><span>标签（逗号分隔）</span><input className="input input-sm w-full rounded-md" value={fields.tags} onChange={(event) => update("tags", event.target.value)} /></label>
-        <label className="admin-field md:col-span-2"><span>摘要（可选） <small>{fields.summary.length}/240</small></span><input className="input input-sm w-full rounded-md" maxLength={240} value={fields.summary} onChange={(event) => update("summary", event.target.value)} /></label>
-        <label className="admin-field md:col-span-2 xl:col-span-4"><span>封面路径（可选）</span><input className="input input-sm w-full rounded-md font-mono" placeholder={`/articles/images/${fields.slug || "slug"}/cover.webp`} value={fields.cover} onChange={(event) => update("cover", event.target.value)} /></label>
+      <section className="mt-5 grid gap-x-8 gap-y-5 border-b border-base-300 pb-6 xl:grid-cols-[minmax(0,3fr)_minmax(320px,2fr)]">
+        <div className="grid min-w-0 gap-4 md:grid-cols-2">
+          <div className="md:col-span-2">
+            <h2 className="text-sm font-semibold">内容信息</h2>
+            <p className="mt-0.5 text-xs text-base-content/50">用于文章正文与列表展示</p>
+          </div>
+          <label className="admin-field md:col-span-2"><span>标题</span><input className="input input-sm w-full rounded-md" value={fields.title} onChange={(event) => update("title", event.target.value)} /></label>
+          <label className="admin-field md:col-span-2"><span>标签（逗号分隔）</span><input className="input input-sm w-full rounded-md" value={fields.tags} onChange={(event) => update("tags", event.target.value)} /></label>
+          <label className="admin-field md:col-span-2"><span className="flex items-center justify-between gap-3"><span>摘要（可选）</span><small>{fields.summary.length}/240</small></span><textarea className="textarea textarea-sm min-h-20 w-full resize-y rounded-md" maxLength={240} value={fields.summary} onChange={(event) => update("summary", event.target.value)} /></label>
+        </div>
+
+        <div className="grid min-w-0 gap-4 border-t border-base-300 pt-5 md:grid-cols-2 xl:border-l xl:border-t-0 xl:pl-8 xl:pt-0">
+          <div className="md:col-span-2">
+            <h2 className="text-sm font-semibold">发布设置</h2>
+            <p className="mt-0.5 text-xs text-base-content/50">控制文章地址、归类和公开状态</p>
+          </div>
+          <label className="admin-field md:col-span-2"><span>Slug</span><input className="input input-sm w-full rounded-md font-mono" disabled={!isNew} value={fields.slug} onChange={(event) => changeSlug(event.target.value.toLowerCase())} /></label>
+          <label className="admin-field"><span>发布日期</span><input className="input input-sm w-full rounded-md" type="date" value={fields.date} onChange={(event) => update("date", event.target.value)} /></label>
+          <label className="admin-field"><span>分类</span><select className="select select-sm w-full rounded-md" value={fields.category} onChange={(event) => update("category", event.target.value)}>{categoriesQuery.data?.articles.map((category) => <option key={category.slug} value={category.slug}>{category.name}</option>)}</select></label>
+          <label className="admin-field md:col-span-2"><span>可见性</span><span className="flex h-8 items-center gap-2"><input className="toggle toggle-sm" type="checkbox" checked={fields.published} onChange={(event) => update("published", event.target.checked)} />{fields.published ? "公开" : "下线"}</span></label>
+        </div>
+
+        <label className="admin-field xl:col-span-2"><span>封面路径（可选）</span><input className="input input-sm w-full rounded-md font-mono" placeholder={`/articles/images/${fields.slug || "slug"}/cover.webp`} value={fields.cover} onChange={(event) => update("cover", event.target.value)} /></label>
       </section>
 
       <div className="mt-4 flex md:hidden"><div className="join w-full">{(["source", "preview"] as const).map((mode) => <button key={mode} className={`btn btn-sm join-item flex-1 rounded-md ${mobileMode === mode ? "btn-neutral" : "btn-ghost"}`} onClick={() => setMobileMode(mode)}>{mode === "source" ? "源码" : "预览"}</button>)}</div></div>
