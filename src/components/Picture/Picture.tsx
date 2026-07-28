@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { createPortal } from "react-dom";
 import { Download, X } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import type { PictureIndex, PictureItem } from "../../types/content";
@@ -24,7 +25,7 @@ function PictureCard({ picture }: { picture: PictureItem }) {
         </div>
         {picture.tags.length > 0 && <div className="mt-1 flex flex-wrap gap-x-2">{picture.tags.map((tag) => <span key={tag} className="text-xs text-base-content/60">#{tag}</span>)}</div>}
       </div>
-      {open && (
+      {open && createPortal(
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true" onClick={() => setOpen(false)}>
           <div className="relative max-h-full max-w-5xl rounded-lg bg-base-100 p-4 shadow-2xl" onClick={(event) => event.stopPropagation()}>
             <img src={assetUrl(picture.file)} alt={picture.title} className="max-h-[78vh] max-w-full rounded-md object-contain" />
@@ -34,7 +35,8 @@ function PictureCard({ picture }: { picture: PictureItem }) {
             </div>
             <button type="button" aria-label="关闭图片预览" className="btn btn-circle btn-sm absolute right-2 top-2 border-0 bg-black/60 text-white hover:bg-black/80" onClick={() => setOpen(false)}><X className="h-4 w-4" /></button>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </article>
   );
