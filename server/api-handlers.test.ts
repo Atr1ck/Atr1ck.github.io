@@ -11,7 +11,6 @@ import callbackHandler from "../api/auth/callback.js";
 import sessionHandler from "../api/auth/session.js";
 import picturePublishHandler from "../api/pictures/publish.js";
 import pictureListHandler from "../api/pictures.js";
-import categoryPublishHandler from "../api/categories/publish.js";
 import categoryListHandler from "../api/categories.js";
 import { createSessionToken, SESSION_COOKIE } from "./session.js";
 
@@ -77,7 +76,7 @@ function responsePair() {
 const writeHandlers = [
   ["publish", publishHandler],
   ["picture publish", picturePublishHandler],
-  ["category publish", categoryPublishHandler],
+  ["category publish", categoryListHandler],
   ["redeploy", redeployHandler],
   ["logout", logoutHandler],
 ] as const;

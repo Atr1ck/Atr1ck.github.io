@@ -50,7 +50,7 @@ export function createCategory(
   csrfToken: string,
   payload: { group: "articles" | "pictures"; category: { slug: string; name: string }; expectedSha: string },
 ) {
-  return requestJson<CategoryPublishResult>("/api/categories/publish", {
+  return requestJson<CategoryPublishResult>("/api/categories", {
     method: "POST",
     headers: { "Content-Type": "application/json", "x-csrf-token": csrfToken },
     body: JSON.stringify(payload),

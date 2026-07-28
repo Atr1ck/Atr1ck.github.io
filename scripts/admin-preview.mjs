@@ -119,7 +119,7 @@ const previewApi = {
           status: "submitted",
         });
       }
-      if (request.method === "POST" && url.pathname === "/api/categories/publish") {
+      if (request.method === "POST" && url.pathname === "/api/categories") {
         const body = await readJsonBody(request);
         const state = await readCategories();
         const group = body.group === "pictures" ? "pictures" : "articles";
