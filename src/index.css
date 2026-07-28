@@ -240,9 +240,15 @@ html[data-theme='light'] {
   background-color: color-mix(in srgb, var(--code-keyword) 12%, transparent);
 }
 
-.article-markdown :where(img) {
-  max-width: 100%;
+.article-markdown :where(.markdown-content-image) {
+  display: block;
+  width: auto;
+  max-width: min(100%, 40rem);
+  max-height: 32rem;
   height: auto;
+  margin-inline: auto;
+  cursor: zoom-in;
+  object-fit: contain;
 }
 
 .admin-shell {
