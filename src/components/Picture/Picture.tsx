@@ -4,8 +4,10 @@ import { createPortal } from "react-dom";
 import { Download, X } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import type { PictureIndex, PictureItem } from "../../types/content";
+import { hasNanYueTag } from "../../../shared/tags";
 import ContentFilterPanel from "../Filters/ContentFilterPanel";
 import Loading from "../Load/Load";
+import { ContentTag, NanYueMark } from "../Tags/NanYueTheme";
 
 function assetUrl(path: string) {
   return `/pictures/${path.split("/").map(encodeURIComponent).join("/")}`;
@@ -14,23 +16,25 @@ function assetUrl(path: string) {
 function PictureCard({ picture }: { picture: PictureItem }) {
   const [open, setOpen] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const isNanYue = hasNanYueTag(picture.tags);
   return (
-    <article className="mb-4 inline-block w-full break-inside-avoid overflow-hidden rounded-lg border border-base-300 bg-base-100 text-base-content transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+    <article className={`mb-4 inline-block w-full break-inside-avoid overflow-hidden rounded-lg border border-base-300 bg-base-100 text-base-content transition-all duration-300 hover:-translate-y-1 hover:shadow-lg ${isNanYue ? "nan-yue-surface nan-yue-picture-card" : ""}`}>
       <button className="block w-full" onClick={() => setOpen(true)} aria-label={`预览 ${picture.title}`}>
         <img src={assetUrl(picture.preview)} className={`block h-auto w-full transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`} alt={picture.title} onLoad={() => setLoaded(true)} loading="lazy" decoding="async" />
       </button>
       <div className="px-3 py-2">
         <div className="flex items-center justify-between gap-2">
           <h2 className="min-w-0 truncate text-sm font-medium" title={picture.title}>{picture.title}</h2>
+          {isNanYue && <NanYueMark className="nan-yue-picture-mark" />}
         </div>
-        {picture.tags.length > 0 && <div className="mt-1 flex flex-wrap gap-x-2">{picture.tags.map((tag) => <span key={tag} className="text-xs text-base-content/60">#{tag}</span>)}</div>}
+        {picture.tags.length > 0 && <div className="mt-1 flex flex-wrap items-end gap-x-2 gap-y-1">{picture.tags.map((tag) => <ContentTag tag={tag} key={tag} className="text-xs text-base-content/60" />)}</div>}
       </div>
       {open && createPortal(
         <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true" onClick={() => setOpen(false)}>
-          <div className="relative max-h-full max-w-5xl rounded-lg bg-base-100 p-4 shadow-2xl" onClick={(event) => event.stopPropagation()}>
+          <div className={`relative max-h-full max-w-5xl rounded-lg bg-base-100 p-4 shadow-2xl ${isNanYue ? "nan-yue-surface nan-yue-lightbox" : ""}`} onClick={(event) => event.stopPropagation()}>
             <img src={assetUrl(picture.file)} alt={picture.title} className="max-h-[78vh] max-w-full rounded-md object-contain" />
             <div className="mt-3 flex items-center justify-between gap-3">
-              <span className="min-w-0 truncate text-sm">{picture.title}</span>
+              <span className="flex min-w-0 items-center gap-2 truncate text-sm">{isNanYue && <NanYueMark className="nan-yue-lightbox-mark" />}{picture.title}</span>
               <a href={assetUrl(picture.file)} download className="btn btn-primary btn-sm rounded-md"><Download className="h-4 w-4" />下载</a>
             </div>
             <button type="button" aria-label="关闭图片预览" className="btn btn-circle btn-sm absolute right-2 top-2 border-0 bg-black/60 text-white hover:bg-black/80" onClick={() => setOpen(false)}><X className="h-4 w-4" /></button>

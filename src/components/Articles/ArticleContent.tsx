@@ -1,7 +1,9 @@
 import { Navigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import type { ArticleAliases, ArticleIndex } from "../../types/article";
+import { hasNanYueTag } from "../../../shared/tags";
 import MarkdownRenderer from "./MarkdownRenderer";
+import { ContentTag, NanYueMark } from "../Tags/NanYueTheme";
 
 export default ArticleContent;
 
@@ -47,14 +49,16 @@ function ArticleContent() {
   if (!article) {
     return <div className="p-8 text-center">文章不存在</div>;
   }
+  const isNanYue = hasNanYueTag(article.tags);
   return (
     <div className="flex w-full justify-center">
-      <article className="article-markdown prose w-full max-w-4xl break-words bg-base-100/95 text-base-content border border-base-300/70 shadow-sm m-2 p-5 sm:p-8 rounded-lg transition-colors duration-300">
+      <article className={`article-markdown prose w-full max-w-4xl break-words bg-base-100/95 text-base-content border border-base-300/70 shadow-sm m-2 p-5 sm:p-8 rounded-lg transition-colors duration-300 ${isNanYue ? "nan-yue-surface nan-yue-article-detail" : ""}`}>
+        {isNanYue && <NanYueMark className="nan-yue-detail-mark" />}
         <header className="not-prose mb-6 border-b border-base-300 pb-4">
-          <h1 className="text-2xl sm:text-3xl font-semibold">{article.title}</h1>
-          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-base-content/60">
+          <h1 className={`text-2xl sm:text-3xl font-semibold ${isNanYue ? "nan-yue-title-space" : ""}`}>{article.title}</h1>
+          <div className="mt-2 flex flex-wrap items-end gap-x-4 gap-y-1 text-sm text-base-content/60">
             <time dateTime={article.date}>{article.date}</time>
-            {article.tags.map((tag) => <span key={tag}>#{tag}</span>)}
+            {article.tags.map((tag) => <ContentTag tag={tag} key={tag} />)}
           </div>
         </header>
         <MarkdownRenderer content={article.content} />

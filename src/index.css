@@ -266,6 +266,232 @@ html[data-theme='light'] {
   font-weight: 600;
 }
 
+/* Nan & Yue uses a restrained love-letter treatment across public content. */
+.nan-yue-surface {
+  --nan-yue-petal: #f58fb1;
+  --nan-yue-blossom: #ffd6e4;
+  --nan-yue-berry: #c94f7c;
+  --nan-yue-glow: rgb(255 166 193 / 28%);
+  --nan-yue-surface: color-mix(in srgb, var(--color-base-100) 94%, var(--nan-yue-blossom) 6%);
+  position: relative;
+  isolation: isolate;
+  border-color: transparent;
+  background:
+    linear-gradient(var(--nan-yue-surface), var(--nan-yue-surface)) padding-box,
+    linear-gradient(135deg, var(--nan-yue-blossom), var(--nan-yue-petal) 54%, var(--nan-yue-berry)) border-box;
+  box-shadow:
+    0 12px 30px -24px var(--nan-yue-berry),
+    inset 0 1px 0 rgb(255 255 255 / 72%);
+}
+
+html[data-theme='dark'] .nan-yue-surface {
+  --nan-yue-petal: #ff9dbd;
+  --nan-yue-blossom: #ffd0df;
+  --nan-yue-berry: #e66d99;
+  --nan-yue-glow: rgb(245 143 177 / 24%);
+  --nan-yue-surface: color-mix(in srgb, var(--color-base-100) 95%, #7d2949 5%);
+  color: #f8eef2;
+  box-shadow:
+    0 15px 34px -24px rgb(255 157 189 / 65%),
+    inset 0 0 24px rgb(201 79 124 / 8%),
+    inset 0 1px 0 rgb(255 214 228 / 14%);
+}
+
+html[data-theme='dark'] .nan-yue-surface :where(h1, h2) {
+  color: #fff7fa;
+}
+
+html[data-theme='dark'] .nan-yue-article-card p,
+html[data-theme='dark'] .nan-yue-article-card time,
+html[data-theme='dark'] .nan-yue-article-detail > header > div,
+html[data-theme='dark'] .nan-yue-picture-card .px-3 {
+  color: rgb(248 238 242 / 76%);
+}
+
+html[data-theme='dark'] .nan-yue-article-detail {
+  --tw-prose-body: #f8eef2;
+  --tw-prose-headings: #fff7fa;
+  --tw-prose-lead: rgb(248 238 242 / 82%);
+  --tw-prose-bold: #fff7fa;
+  --tw-prose-counters: rgb(248 238 242 / 68%);
+  --tw-prose-bullets: rgb(255 157 189 / 76%);
+  --tw-prose-quotes: #f8eef2;
+  --tw-prose-captions: rgb(248 238 242 / 68%);
+  --tw-prose-code: #fff7fa;
+}
+
+.nan-yue-article-card:hover,
+.nan-yue-picture-card:hover {
+  box-shadow:
+    0 18px 34px -22px var(--nan-yue-berry),
+    0 0 0 3px var(--nan-yue-glow),
+    inset 0 1px 0 rgb(255 255 255 / 76%);
+}
+
+.nan-yue-article-detail {
+  box-shadow:
+    0 14px 34px -27px var(--nan-yue-berry),
+    inset 0 1px 0 rgb(255 255 255 / 68%);
+}
+
+.nan-yue-article-detail > header {
+  border-color: color-mix(in srgb, var(--nan-yue-petal) 38%, var(--color-base-300));
+}
+
+.nan-yue-title-space {
+  padding-inline-end: 4.75rem;
+}
+
+.nan-yue-mark {
+  display: inline-flex;
+  width: 3.25rem;
+  height: 2rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 4px 7px var(--nan-yue-glow));
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.7rem;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.nan-yue-heart {
+  display: block;
+  transition: color 220ms ease, filter 220ms ease, transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.nan-yue-heart-outline {
+  color: var(--nan-yue-petal);
+  transform: translateX(0.12rem) rotate(-7deg);
+}
+
+.nan-yue-heart-solid {
+  margin-left: -0.36rem;
+  color: var(--nan-yue-berry);
+  font-size: 0.72em;
+  transform: translate(-0.08rem, 0.12rem) rotate(7deg);
+}
+
+.nan-yue-surface:hover .nan-yue-heart-outline {
+  color: var(--nan-yue-berry);
+  transform: translateX(0.28rem) rotate(-10deg) scale(1.04);
+}
+
+.nan-yue-surface:hover .nan-yue-heart-solid {
+  filter: drop-shadow(0 0 5px var(--nan-yue-glow));
+  transform: translate(-0.24rem, 0.12rem) rotate(4deg) scale(1.06);
+}
+
+.nan-yue-card-mark,
+.nan-yue-detail-mark {
+  position: absolute;
+  top: 0.9rem;
+  right: 1rem;
+  z-index: 1;
+}
+
+.nan-yue-detail-mark {
+  top: 1.4rem;
+  right: 1.35rem;
+}
+
+.nan-yue-picture-mark,
+.nan-yue-lightbox-mark {
+  width: 2.2rem;
+  height: 1.35rem;
+  font-size: 1.15rem;
+}
+
+.nan-yue-lightbox {
+  border: 1px solid transparent;
+}
+
+.nan-yue-tag {
+  display: inline-flex;
+  vertical-align: bottom;
+  min-height: 1.45rem;
+  align-items: center;
+  gap: 0.22rem;
+  border: 1px solid color-mix(in srgb, var(--nan-yue-petal, #f58fb1) 52%, transparent);
+  border-radius: 999px;
+  padding: 0.08rem 0.48rem 0.1rem 0.36rem;
+  background-color: color-mix(in srgb, var(--nan-yue-blossom, #ffd6e4) 46%, transparent);
+  color: var(--nan-yue-berry, #c94f7c);
+  font-family: Georgia, 'Times New Roman', 'PingFang SC', serif;
+  font-weight: 600;
+  line-height: 1.15;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 66%);
+}
+
+html[data-theme='dark'] .nan-yue-tag {
+  border-color: rgb(255 157 189 / 46%);
+  background-color: rgb(125 41 73 / 28%);
+  color: #ffb3cc;
+  box-shadow: inset 0 1px 0 rgb(255 214 228 / 12%);
+}
+
+.nan-yue-tag-heart {
+  color: var(--nan-yue-petal, #f58fb1);
+  font-size: 1.08em;
+  line-height: 1;
+}
+
+@media (hover: none) {
+  .nan-yue-surface:hover .nan-yue-heart-outline {
+    color: var(--nan-yue-petal);
+    transform: translateX(0.12rem) rotate(-7deg);
+  }
+
+  .nan-yue-surface:hover .nan-yue-heart-solid {
+    filter: none;
+    transform: translate(-0.08rem, 0.12rem) rotate(7deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nan-yue-heart {
+    transition: none;
+  }
+
+  .nan-yue-surface:hover .nan-yue-heart-outline {
+    color: var(--nan-yue-petal);
+    transform: translateX(0.12rem) rotate(-7deg);
+  }
+
+  .nan-yue-surface:hover .nan-yue-heart-solid {
+    filter: none;
+    transform: translate(-0.08rem, 0.12rem) rotate(7deg);
+  }
+}
+
+@media (max-width: 639px) {
+  .nan-yue-heart {
+    transition: none;
+  }
+
+  .nan-yue-surface:hover .nan-yue-heart-outline {
+    color: var(--nan-yue-petal);
+    transform: translateX(0.12rem) rotate(-7deg);
+  }
+
+  .nan-yue-surface:hover .nan-yue-heart-solid {
+    filter: none;
+    transform: translate(-0.08rem, 0.12rem) rotate(7deg);
+  }
+
+  .nan-yue-title-space {
+    padding-inline-end: 3.35rem;
+  }
+
+  .nan-yue-card-mark,
+  .nan-yue-detail-mark {
+    top: 0.75rem;
+    right: 0.65rem;
+    transform: scale(0.88);
+  }
+}
+
 .admin-shell {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
     'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;

@@ -9,3 +9,13 @@ export function normalizeTagList(tags: string[]) {
   const normalized = tags.map(titleCaseTag).filter(Boolean);
   return normalized.filter((tag, index) => normalized.findIndex((item) => item.toLocaleLowerCase("zh-CN") === tag.toLocaleLowerCase("zh-CN")) === index);
 }
+
+const NAN_YUE_TAG = "nan & yue";
+
+export function isNanYueTag(tag: string) {
+  return tag.trim().toLocaleLowerCase("en-US") === NAN_YUE_TAG;
+}
+
+export function hasNanYueTag(tags: string[]) {
+  return tags.some(isNanYueTag);
+}

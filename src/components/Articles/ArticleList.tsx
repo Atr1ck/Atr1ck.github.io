@@ -2,8 +2,10 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import type { ArticleIndex } from "../../types/article";
+import { hasNanYueTag } from "../../../shared/tags";
 import ContentFilterPanel from "../Filters/ContentFilterPanel";
 import Loading from "../Load/Load";
+import { ContentTag, NanYueMark } from "../Tags/NanYueTheme";
 
 async function loadArticleList() {
   const articlesResponse = await fetch("/json/articles.json");
@@ -78,24 +80,28 @@ export default function ArticleList() {
             onReset={resetFilters}
           />
         </div>
-        {articles.map((article) => (
-          <article
-            className="mb-4 flex w-full max-w-4xl cursor-pointer flex-col rounded-lg border border-base-300/70 bg-base-100/95 p-4 text-base-content shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md sm:mb-5 sm:p-6"
-            key={article.slug}
-            onClick={() => navigate(`/articles/${article.slug}`)}
-          >
-            <div className="w-full">
-              <h2 className="text-xl font-semibold text-base-content sm:text-3xl">{article.title}</h2>
-              <p className="mt-2 min-h-10 text-sm text-base-content/70 line-clamp-2 sm:min-h-12 sm:text-base">{article.summary}</p>
-            </div>
-            <div className="mt-5 flex min-h-6 items-end justify-between gap-3">
-              <time className="shrink-0 text-xs text-base-content/60 sm:text-sm" dateTime={article.date}>{article.date}</time>
-              <div className="flex flex-wrap justify-end gap-x-2 gap-y-1">
-                {article.tags.map((item) => <span className="cursor-default font-mono text-xs text-base-content/70 sm:text-sm" key={item}>#{item}</span>)}
+        {articles.map((article) => {
+          const isNanYue = hasNanYueTag(article.tags);
+          return (
+            <article
+              className={`mb-4 flex w-full max-w-4xl cursor-pointer flex-col rounded-lg border border-base-300/70 bg-base-100/95 p-4 text-base-content shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md sm:mb-5 sm:p-6 ${isNanYue ? "nan-yue-surface nan-yue-article-card" : ""}`}
+              key={article.slug}
+              onClick={() => navigate(`/articles/${article.slug}`)}
+            >
+              {isNanYue && <NanYueMark className="nan-yue-card-mark" />}
+              <div className="w-full">
+                <h2 className={`text-xl font-semibold text-base-content sm:text-3xl ${isNanYue ? "nan-yue-title-space" : ""}`}>{article.title}</h2>
+                <p className="mt-2 min-h-10 text-sm text-base-content/70 line-clamp-2 sm:min-h-12 sm:text-base">{article.summary}</p>
               </div>
-            </div>
-          </article>
-        ))}
+              <div className="mt-5 flex min-h-6 items-end justify-between gap-3">
+                <time className="shrink-0 text-xs text-base-content/60 sm:text-sm" dateTime={article.date}>{article.date}</time>
+                <div className="flex flex-wrap items-end justify-end gap-x-2 gap-y-1">
+                  {article.tags.map((item) => <ContentTag className="cursor-default font-mono text-xs text-base-content/70 sm:text-sm" tag={item} key={item} />)}
+                </div>
+              </div>
+            </article>
+          );
+        })}
         {articles.length === 0 && <p className="py-16 text-sm text-base-content/55">没有符合条件的文章</p>}
       </div>
     </main>
