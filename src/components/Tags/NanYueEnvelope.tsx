@@ -9,6 +9,8 @@ function EnvelopeFace({ article }: { article: Article }) {
   return (
     <>
       <span className="nan-yue-envelope-flap" aria-hidden="true" />
+      <span className="nan-yue-envelope-upper-creases" aria-hidden="true" />
+      <span className="nan-yue-envelope-pocket" aria-hidden="true" />
       <span className="nan-yue-envelope-seam nan-yue-envelope-seam-left" aria-hidden="true" />
       <span className="nan-yue-envelope-seam nan-yue-envelope-seam-right" aria-hidden="true" />
       <span className="nan-yue-envelope-stamp" aria-hidden="true">

@@ -476,9 +476,36 @@ html[data-theme='dark'] .nan-yue-tag {
   filter: drop-shadow(0 3px 4px rgb(201 79 124 / 10%));
 }
 
+.nan-yue-envelope-upper-creases {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 10;
+  height: 57%;
+  background:
+    linear-gradient(to top right, transparent calc(50% - 0.5px), var(--nan-yue-envelope-crease) 50%, transparent calc(50% + 0.5px)) left / 50% 100% no-repeat,
+    linear-gradient(to top left, transparent calc(50% - 0.5px), var(--nan-yue-envelope-crease) 50%, transparent calc(50% + 0.5px)) right / 50% 100% no-repeat;
+  pointer-events: none;
+}
+
+.nan-yue-envelope-pocket {
+  display: none;
+}
+
+.nan-yue-envelope-float .nan-yue-envelope-pocket {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  display: block;
+  background:
+    repeating-linear-gradient(0deg, transparent 0 3px, rgb(201 79 124 / 3%) 3px 4px),
+    linear-gradient(var(--nan-yue-envelope-paper), var(--nan-yue-envelope-paper));
+  clip-path: polygon(0 0, 50% 57%, 100% 0, 100% 100%, 0 100%);
+  pointer-events: none;
+}
+
 .nan-yue-envelope-seam {
   position: absolute;
-  z-index: 2;
+  z-index: 10;
   bottom: 0;
   width: 50%;
   height: 43%;
@@ -487,12 +514,12 @@ html[data-theme='dark'] .nan-yue-tag {
 
 .nan-yue-envelope-seam-left {
   left: 0;
-  background: linear-gradient(to top right, transparent calc(50% - 0.5px), var(--nan-yue-envelope-crease) 50%, transparent calc(50% + 0.5px));
+  background: linear-gradient(to bottom right, transparent calc(50% - 0.5px), var(--nan-yue-envelope-crease) 50%, transparent calc(50% + 0.5px));
 }
 
 .nan-yue-envelope-seam-right {
   right: 0;
-  background: linear-gradient(to top left, transparent calc(50% - 0.5px), var(--nan-yue-envelope-crease) 50%, transparent calc(50% + 0.5px));
+  background: linear-gradient(to bottom left, transparent calc(50% - 0.5px), var(--nan-yue-envelope-crease) 50%, transparent calc(50% + 0.5px));
 }
 
 .nan-yue-envelope-stamp {
@@ -523,7 +550,7 @@ html[data-theme='dark'] .nan-yue-tag {
   position: absolute;
   top: 57%;
   left: 50%;
-  z-index: 5;
+  z-index: 12;
   display: grid;
   width: 3.75rem;
   height: 3.75rem;
@@ -589,6 +616,10 @@ html[data-theme='dark'] .nan-yue-tag {
   right: 6rem;
   bottom: 0.75rem;
   z-index: 3;
+}
+
+.nan-yue-envelope-float :is(.nan-yue-envelope-date, .nan-yue-envelope-tagline) {
+  z-index: 11;
 }
 
 .nan-yue-envelope-tagline .nan-yue-tag {
