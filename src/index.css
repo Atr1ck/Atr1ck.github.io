@@ -455,6 +455,11 @@ html[data-theme='dark'] .nan-yue-tag {
   transform: translateY(-0.25rem);
 }
 
+.nan-yue-envelope-origin-opening {
+  visibility: hidden;
+  transition: none;
+}
+
 .nan-yue-envelope-card::after {
   position: absolute;
   inset: 0;

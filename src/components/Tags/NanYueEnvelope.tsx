@@ -130,7 +130,7 @@ export default function NanYueEnvelopeCard({ article, onOpen }: { article: Artic
     <>
       <article
         ref={cardRef}
-        className={`nan-yue-surface nan-yue-envelope-card mb-4 flex w-full max-w-4xl cursor-pointer flex-col rounded-lg border p-4 text-base-content shadow-sm transition-all duration-300 sm:mb-5 sm:p-6 ${opening ? "invisible" : ""}`}
+        className={`nan-yue-surface nan-yue-envelope-card mb-4 flex w-full max-w-4xl cursor-pointer flex-col rounded-lg border p-4 text-base-content shadow-sm transition-all duration-300 sm:mb-5 sm:p-6 ${opening ? "nan-yue-envelope-origin-opening" : ""}`}
         role="button"
         tabIndex={0}
         aria-label={`打开情书 ${article.title}`}
