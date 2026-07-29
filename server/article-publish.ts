@@ -1,6 +1,4 @@
 import matter from "gray-matter";
-import { unified } from "unified";
-import remarkParse from "remark-parse";
 import { getRepository, githubRequest } from "./github.js";
 import type { GitHubRepository } from "./github.js";
 import { HttpError } from "./http.js";
@@ -11,6 +9,7 @@ import {
   MAX_TOTAL_ASSET_BYTES,
 } from "../shared/publish-limits.js";
 import { normalizeTagList } from "../shared/tags.js";
+import { validateArticleHtml } from "../shared/article-html.js";
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SHA_PATTERN = /^[a-f0-9]{40}$/;
@@ -72,15 +71,6 @@ function isValidDateValue(value: unknown): boolean {
   );
 }
 
-interface MarkdownNode {
-  type: string;
-  children?: MarkdownNode[];
-}
-
-function containsRawHtml(node: MarkdownNode): boolean {
-  return node.type === "html" || Boolean(node.children?.some(containsRawHtml));
-}
-
 function isSafeImageName(name: string): boolean {
   return /^[a-z0-9][a-z0-9._-]{0,119}\.(?:avif|gif|jpe?g|png|webp)$/.test(name);
 }
@@ -130,10 +120,8 @@ export function validatePublishRequest(value: unknown): PublishRequest {
     throw new HttpError(400, "Frontmatter tags must use title case and contain no duplicates");
   }
   if (!parsed.content.trim()) throw new HttpError(400, "Article content is required");
-  const markdownTree = unified().use(remarkParse).parse(parsed.content) as MarkdownNode;
-  if (containsRawHtml(markdownTree)) {
-    throw new HttpError(400, "Raw HTML is not allowed in articles");
-  }
+  const htmlErrors = validateArticleHtml(parsed.content);
+  if (htmlErrors.length > 0) throw new HttpError(400, `Invalid article HTML: ${htmlErrors.join("; ")}`);
   if (
     !isValidDateValue(parsed.data.date) ||
     !isValidDateValue(parsed.data.updated)

@@ -117,7 +117,14 @@ test("rejects mismatched slugs and unsafe asset paths", () => {
   );
 });
 
-test("rejects raw HTML but permits Markdown autolinks and code", () => {
+test("accepts allowed HTML and rejects unsupported raw HTML", () => {
+  assert.doesNotThrow(() => validatePublishRequest({
+    slug: "example-article",
+    markdown: VALID_MARKDOWN.replace("Body.", `<div class="note" style="color: crimson"><img src="https://example.com/image.webp" alt="Example" width="320" /></div>`),
+    expectedSha: null,
+    assets: [],
+  }));
+
   assert.throws(
     () => validatePublishRequest({
       slug: "example-article",
@@ -125,7 +132,7 @@ test("rejects raw HTML but permits Markdown autolinks and code", () => {
       expectedSha: null,
       assets: [],
     }),
-    (error) => error instanceof HttpError && error.status === 400 && error.message.includes("Raw HTML"),
+    (error) => error instanceof HttpError && error.status === 400 && error.message.includes("<script>"),
   );
 
   assert.doesNotThrow(() => validatePublishRequest({

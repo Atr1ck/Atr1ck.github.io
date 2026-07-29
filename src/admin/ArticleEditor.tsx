@@ -28,6 +28,7 @@ import {
   MAX_PUBLISH_REQUEST_BYTES,
   MAX_TOTAL_ASSET_BYTES,
 } from "../../shared/publish-limits";
+import { validateArticleHtml } from "../../shared/article-html";
 
 interface EditorFields {
   title: string;
@@ -235,6 +236,7 @@ export default function ArticleEditor() {
     () => new TextEncoder().encode(JSON.stringify(publishPayload)).byteLength,
     [publishPayload],
   );
+  const htmlErrors = useMemo(() => validateArticleHtml(fields.content), [fields.content]);
   const errors = useMemo(() => {
     const result: string[] = [];
     if (!fields.title.trim()) result.push("标题不能为空");
@@ -246,8 +248,9 @@ export default function ArticleEditor() {
     if (totalImageBytes > MAX_TOTAL_ASSET_BYTES) result.push("单次发布图片总大小不能超过 2.75MB");
     if (publishRequestBytes > MAX_PUBLISH_REQUEST_BYTES) result.push("发布请求不能超过 4MB，请压缩或移除图片");
     if (fields.cover && !fields.cover.startsWith(`/articles/images/${fields.slug}/`)) result.push("封面必须使用当前文章图片目录");
-    return result;
-  }, [fields, publishMarkdown, publishRequestBytes, selectedImages, totalImageBytes]);
+    return [...result, ...htmlErrors];
+  }, [fields, htmlErrors, publishMarkdown, publishRequestBytes, selectedImages, totalImageBytes]);
+  const generalErrors = errors.filter((error) => !htmlErrors.includes(error));
 
   const publishMutation = useMutation({
     mutationFn: () => publishArticle(session.csrfToken, publishPayload),
@@ -359,7 +362,7 @@ export default function ArticleEditor() {
         </div>
       </div>
 
-      {(message || errors.length > 0) && <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm"><span className="text-base-content/65">{message}</span>{errors.map((error) => <span key={error} className="text-error">{error}</span>)}</div>}
+      {(message || generalErrors.length > 0) && <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm"><span className="text-base-content/65">{message}</span>{generalErrors.map((error) => <span key={error} className="text-error">{error}</span>)}</div>}
 
       <section className="mt-5 grid gap-x-8 gap-y-5 border-b border-base-300 pb-6 xl:grid-cols-[minmax(0,3fr)_minmax(320px,2fr)]">
         <div className="grid min-w-0 gap-4 md:grid-cols-2">
@@ -399,7 +402,8 @@ export default function ArticleEditor() {
           />
         </div>
         <div className={`${mobileMode === "source" ? "hidden" : "block"} min-w-0 overflow-auto md:block`}>
-          <div className="sticky top-0 z-10 border-b border-base-300 bg-base-100 px-3 py-2 text-xs font-medium text-base-content/55">实时预览</div>
+          <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-base-300 bg-base-100 px-3 py-2 text-xs font-medium text-base-content/55"><span>实时预览</span>{htmlErrors.length > 0 && <span className="text-error">HTML {htmlErrors.length} 项错误</span>}</div>
+          {htmlErrors.length > 0 && <div className="m-3 border border-error/35 bg-error/8 px-3 py-2 text-xs text-error" role="alert">{htmlErrors.map((error) => <p key={error}>{error}</p>)}</div>}
           <article className="article-markdown prose max-w-none p-4 sm:p-6"><MarkdownRenderer content={fields.content} /></article>
         </div>
       </section>

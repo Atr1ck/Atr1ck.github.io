@@ -1,11 +1,23 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ComponentPropsWithoutRef, type CSSProperties } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
+import rehypeRaw from "rehype-raw";
+import rehypeSanitize from "rehype-sanitize";
+import { articleHtmlSchema, rehypeFilterUnsafeArticleStyles } from "../../../shared/article-html-schema";
 
-function MarkdownImage({ src, alt }: { src?: string; alt?: string }) {
+function imageStyle(style: CSSProperties | undefined, width: number | string | undefined, height: number | string | undefined): CSSProperties | undefined {
+  if (!width && !height) return style;
+  return {
+    ...style,
+    ...(width && style?.width == null ? { width: typeof width === "number" ? `${width}px` : width } : {}),
+    ...(height && style?.height == null ? { height: typeof height === "number" ? `${height}px` : height } : {}),
+  };
+}
+
+function MarkdownImage({ src, alt, className, style, width, height, loading, decoding, ...props }: ComponentPropsWithoutRef<"img">) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -27,11 +39,15 @@ function MarkdownImage({ src, alt }: { src?: string; alt?: string }) {
   return (
     <>
       <img
-        className="markdown-content-image"
+        {...props}
+        className={["markdown-content-image", className].filter(Boolean).join(" ")}
         src={src}
         alt={alt || ""}
-        loading="lazy"
-        decoding="async"
+        width={width}
+        height={height}
+        style={imageStyle(style, width, height)}
+        loading={loading || "lazy"}
+        decoding={decoding || "async"}
         role="button"
         tabIndex={0}
         aria-label={`放大查看${alt ? `：${alt}` : "图片"}`}
@@ -61,7 +77,14 @@ function MarkdownImage({ src, alt }: { src?: string; alt?: string }) {
 
 export default function MarkdownRenderer({ content }: { content: string }) {
   return (
-    <Markdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]} components={{ img: ({ src, alt }) => <MarkdownImage src={src} alt={alt} /> }}>
+    <Markdown
+      remarkPlugins={[remarkGfm]}
+      rehypePlugins={[rehypeRaw, rehypeFilterUnsafeArticleStyles, [rehypeSanitize, articleHtmlSchema], rehypeHighlight]}
+      components={{ img: ({ node, ...props }) => {
+        void node;
+        return <MarkdownImage {...props} />;
+      } }}
+    >
       {content}
     </Markdown>
   );
