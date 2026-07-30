@@ -266,6 +266,245 @@ html[data-theme='light'] {
   font-weight: 600;
 }
 
+/* A self-contained yandere-horror fragment for raw HTML inside Markdown. */
+.article-markdown :where(.horror) {
+  --horror-ink: #170d10;
+  --horror-deep-red: #671925;
+  --horror-blood: #9f1428;
+  --horror-fresh-red: #e3263f;
+  --horror-pale: #d7a3aa;
+  --horror-muted: #9e6670;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin-block: 1.1em;
+  padding: 1.35rem 1.5rem 1.45rem;
+  border: 1px solid var(--horror-deep-red);
+  border-radius: 3px;
+  background:
+    linear-gradient(118deg, rgb(190 24 48 / 20%), transparent 34%),
+    linear-gradient(var(--horror-ink), #201015);
+  color: var(--horror-pale);
+  box-shadow:
+    0 12px 28px -20px rgb(54 17 24 / 88%),
+    inset 0 0 0 1px rgb(227 38 63 / 12%),
+    inset 0 -18px 34px rgb(54 17 24 / 20%);
+  overflow-wrap: anywhere;
+}
+
+html[data-theme='light'] .article-markdown :where(.horror) {
+  border-color: #693039;
+  box-shadow:
+    0 14px 30px -18px rgb(54 17 24 / 62%),
+    0 0 0 1px rgb(122 38 49 / 14%),
+    inset 0 0 0 1px rgb(167 70 83 / 12%),
+    inset 0 -18px 34px rgb(54 17 24 / 20%);
+}
+
+.article-markdown :where(.horror)::before {
+  position: absolute;
+  top: -0.15rem;
+  right: -0.1rem;
+  z-index: 0;
+  width: 6.2rem;
+  height: 4.7rem;
+  background:
+    radial-gradient(circle at 79% 18%, rgb(255 59 84 / 92%) 0 0.19rem, transparent 0.22rem),
+    radial-gradient(ellipse at 64% 23%, rgb(159 20 40 / 96%) 0 0.48rem, transparent 0.52rem),
+    radial-gradient(ellipse at 90% 34%, rgb(227 38 63 / 94%) 0 0.31rem, transparent 0.35rem),
+    radial-gradient(ellipse at 69% 61%, rgb(190 24 48 / 88%) 0 0.2rem, transparent 0.24rem),
+    linear-gradient(90deg, transparent 65%, rgb(159 20 40 / 82%) 66% 69%, transparent 70%) 0 0 / 100% 78% no-repeat;
+  content: "";
+  filter: drop-shadow(0 2px 1px rgb(37 13 18 / 72%));
+  pointer-events: none;
+}
+
+.article-markdown :where(.horror)::after {
+  position: absolute;
+  bottom: -0.45rem;
+  left: -0.75rem;
+  z-index: 0;
+  width: 8rem;
+  height: 4.5rem;
+  background:
+    linear-gradient(151deg, transparent 42%, rgb(255 107 123 / 48%) 43%, rgb(227 38 63 / 96%) 44%, rgb(103 25 37 / 96%) 47%, transparent 49%),
+    linear-gradient(156deg, transparent 53%, rgb(190 24 48 / 82%) 54%, transparent 56%);
+  content: "";
+  opacity: 0.82;
+  pointer-events: none;
+  transform: rotate(-3deg);
+}
+
+.article-markdown :where(.horror > *) {
+  position: relative;
+  z-index: 1;
+  max-width: 100%;
+}
+
+.article-markdown :where(.horror > p, .horror > blockquote, .horror > ul > li, .horror > ol > li) {
+  font-size: var(--horror-line-size, 1rem);
+  transform: translateX(var(--horror-line-shift, 0)) rotate(var(--horror-line-angle, 0deg));
+  transform-origin: left center;
+}
+
+.article-markdown :where(.horror > :is(p, blockquote):nth-child(6n + 1), .horror > :is(ul, ol) > li:nth-child(6n + 1)) {
+  --horror-line-size: 1.08rem;
+  --horror-line-shift: 0.08rem;
+  --horror-line-angle: -0.35deg;
+}
+
+.article-markdown :where(.horror > :is(p, blockquote):nth-child(6n + 2), .horror > :is(ul, ol) > li:nth-child(6n + 2)) {
+  --horror-line-size: 0.96rem;
+  --horror-line-shift: 0.28rem;
+  --horror-line-angle: 0.2deg;
+}
+
+.article-markdown :where(.horror > :is(p, blockquote):nth-child(6n + 3), .horror > :is(ul, ol) > li:nth-child(6n + 3)) {
+  --horror-line-size: 1.16rem;
+  --horror-line-shift: 0.03rem;
+  --horror-line-angle: -0.15deg;
+}
+
+.article-markdown :where(.horror > :is(p, blockquote):nth-child(6n + 4), .horror > :is(ul, ol) > li:nth-child(6n + 4)) {
+  --horror-line-size: 1.01rem;
+  --horror-line-shift: 0.36rem;
+  --horror-line-angle: 0.4deg;
+}
+
+.article-markdown :where(.horror > :is(p, blockquote):nth-child(6n + 5), .horror > :is(ul, ol) > li:nth-child(6n + 5)) {
+  --horror-line-size: 1.12rem;
+  --horror-line-shift: 0.14rem;
+  --horror-line-angle: -0.25deg;
+}
+
+.article-markdown :where(.horror > :is(p, blockquote):nth-child(6n), .horror > :is(ul, ol) > li:nth-child(6n)) {
+  --horror-line-size: 0.98rem;
+  --horror-line-shift: 0.22rem;
+  --horror-line-angle: 0.15deg;
+}
+
+.article-markdown :where(.horror > h1, .horror > h2, .horror > h3, .horror > h4, .horror > h5, .horror > h6) {
+  color: #e4b8be;
+  font-family: STKaiti, KaiTi, 'Kaiti SC', serif;
+  font-size: var(--horror-heading-size, 1.42rem);
+  letter-spacing: 0;
+  line-height: 1.28;
+  text-wrap: balance;
+  transform: rotate(var(--horror-heading-angle, -0.35deg));
+  transform-origin: left center;
+}
+
+.article-markdown :where(.horror > :is(h1, h2, h3, h4, h5, h6):nth-child(3n + 2)) {
+  --horror-heading-size: 1.62rem;
+  --horror-heading-angle: 0.3deg;
+}
+
+.article-markdown :where(.horror > :is(h1, h2, h3, h4, h5, h6):nth-child(3n)) {
+  --horror-heading-size: 1.3rem;
+  --horror-heading-angle: -0.15deg;
+}
+
+.article-markdown :where(.horror blockquote) {
+  border-inline-start-color: var(--horror-blood);
+  color: #c89199;
+  font-style: normal;
+}
+
+.article-markdown :where(.horror li)::marker {
+  color: var(--horror-fresh-red);
+}
+
+.article-markdown :where(.horror a) {
+  color: #e14a5f;
+  text-decoration-color: #b51b31;
+  text-decoration-thickness: 0.1em;
+  text-underline-offset: 0.18em;
+}
+
+.article-markdown :where(.horror a:hover, .horror a:focus-visible) {
+  color: #ff6b7b;
+  outline-color: var(--horror-fresh-red);
+}
+
+.article-markdown :where(.horror code) {
+  background-color: var(--code-background);
+  color: var(--code-text);
+}
+
+.article-markdown :where(.horror-title) {
+  color: #f06a79;
+  font-family: STKaiti, KaiTi, 'Kaiti SC', serif;
+  letter-spacing: 0;
+  text-shadow: 0.08rem 0 rgb(190 24 48 / 86%);
+}
+
+.article-markdown :where(.horror-note) {
+  display: block;
+  margin-top: 1rem;
+  color: var(--horror-muted);
+  font-family: STKaiti, KaiTi, 'Kaiti SC', serif;
+  font-size: 0.82rem;
+  letter-spacing: 0;
+  line-height: 1.55;
+  transform: rotate(-0.45deg);
+}
+
+.article-markdown :where(.horror-scream) {
+  display: inline-block;
+  color: #ff3b54;
+  font-family: STKaiti, KaiTi, 'Kaiti SC', serif;
+  font-size: 1.58em;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 0.72;
+  text-shadow:
+    0.08em 0 #6f0f20,
+    -0.04em 0 rgb(255 131 144 / 50%);
+  transform: rotate(-2deg) skewX(-5deg);
+  transform-origin: center;
+}
+
+@media (hover: hover) {
+  .article-markdown :where(.horror-title:hover, .horror-title:focus-visible, .horror:focus-within .horror-title) {
+    animation: horror-title-ghost 460ms steps(2, end) 1;
+  }
+}
+
+@keyframes horror-title-ghost {
+  0%, 100% {
+    text-shadow: 0.08rem 0 rgb(190 24 48 / 86%);
+    transform: translate(0) rotate(var(--horror-heading-angle, -0.35deg));
+  }
+  32% {
+    text-shadow: -0.16rem 0 #ff314c, 0.12rem 0 rgb(255 139 151 / 48%);
+    transform: translate(0.08rem, -0.03rem) rotate(-0.7deg);
+  }
+  68% {
+    text-shadow: 0.18rem 0 #a80f27, -0.08rem 0 rgb(255 59 84 / 62%);
+    transform: translate(-0.05rem, 0.02rem) rotate(0.35deg);
+  }
+}
+
+@media (max-width: 40rem) {
+  .article-markdown :where(.horror) {
+    padding: 1.15rem 1rem 1.3rem;
+  }
+
+  .article-markdown :where(.horror > p, .horror > blockquote, .horror > ul > li, .horror > ol > li) {
+    --horror-line-shift: 0.08rem;
+  }
+
+  .article-markdown :where(.horror > h1, .horror > h2, .horror > h3, .horror > h4, .horror > h5, .horror > h6) {
+    max-width: calc(100% - 2.75rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .article-markdown :where(.horror-title:hover, .horror-title:focus-visible, .horror:focus-within .horror-title) {
+    animation: none;
+  }
+}
+
 /* Nan & Yue uses a restrained love-letter treatment across public content. */
 .nan-yue-surface {
   --nan-yue-petal: #f58fb1;
