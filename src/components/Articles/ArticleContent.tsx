@@ -4,6 +4,7 @@ import type { ArticleAliases, ArticleIndex } from "../../types/article";
 import { hasNanYueTag } from "../../../shared/tags";
 import MarkdownRenderer from "./MarkdownRenderer";
 import { ContentTag, NanYueMark } from "../Tags/NanYueTheme";
+import { countArticleCharacters, formatArticleWordCount } from "../../../shared/article-word-count";
 
 export default ArticleContent;
 
@@ -50,6 +51,7 @@ function ArticleContent() {
     return <div className="p-8 text-center">文章不存在</div>;
   }
   const isNanYue = hasNanYueTag(article.tags);
+  const wordCountLabel = formatArticleWordCount(countArticleCharacters(article.content));
   return (
     <div className="flex w-full justify-center">
       <article className={`article-markdown prose w-full max-w-4xl break-words bg-base-100/95 text-base-content border border-base-300/70 shadow-sm m-2 p-5 sm:p-8 rounded-lg transition-colors duration-300 ${isNanYue ? "nan-yue-surface nan-yue-article-detail" : ""}`}>
@@ -62,6 +64,7 @@ function ArticleContent() {
           </div>
         </header>
         <MarkdownRenderer content={article.content} />
+        <footer className="not-prose mt-6 flex justify-end text-xs tabular-nums text-base-content/55">{wordCountLabel}</footer>
       </article>
     </div>
   );

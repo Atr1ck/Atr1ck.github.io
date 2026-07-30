@@ -29,6 +29,7 @@ import {
   MAX_TOTAL_ASSET_BYTES,
 } from "../../shared/publish-limits";
 import { validateArticleHtml } from "../../shared/article-html";
+import { countArticleCharacters, formatArticleWordCount } from "../../shared/article-word-count";
 
 interface EditorFields {
   title: string;
@@ -237,6 +238,8 @@ export default function ArticleEditor() {
     [publishPayload],
   );
   const htmlErrors = useMemo(() => validateArticleHtml(fields.content), [fields.content]);
+  const wordCount = useMemo(() => countArticleCharacters(fields.content), [fields.content]);
+  const wordCountLabel = formatArticleWordCount(wordCount);
   const errors = useMemo(() => {
     const result: string[] = [];
     if (!fields.title.trim()) result.push("标题不能为空");
@@ -390,21 +393,26 @@ export default function ArticleEditor() {
 
       <div className="mt-4 flex md:hidden"><div className="join w-full">{(["source", "preview"] as const).map((mode) => <button key={mode} className={`btn btn-sm join-item flex-1 rounded-md ${mobileMode === mode ? "btn-neutral" : "btn-ghost"}`} onClick={() => setMobileMode(mode)}>{mode === "source" ? "源码" : "预览"}</button>)}</div></div>
       <section className="mt-3 grid h-[clamp(560px,calc(100vh-12rem),780px)] border border-base-300 bg-base-100 md:grid-cols-2">
-        <div className={`${mobileMode === "preview" ? "hidden" : "flex"} min-w-0 flex-col overflow-hidden border-r border-base-300 md:flex`}>
+        <div className={`${mobileMode === "preview" ? "hidden" : "flex"} relative min-w-0 flex-col overflow-hidden border-r border-base-300 md:flex`}>
           <div className="border-b border-base-300 px-3 py-2 text-xs font-medium text-base-content/55">MARKDOWN</div>
           <textarea
             className="min-h-0 grow resize-none bg-transparent p-4 font-mono text-sm leading-6 outline-none"
+            style={{ paddingBottom: "3rem" }}
             value={fields.content}
             onChange={(event) => update("content", event.target.value)}
             onPaste={(event) => { const files = Array.from(event.clipboardData.files); if (files.length) { event.preventDefault(); void addFiles(files); } }}
             onDrop={(event) => { const files = Array.from(event.dataTransfer.files); if (files.some((file) => file.type.startsWith("image/"))) { event.preventDefault(); void addFiles(files); } }}
             onDragOver={(event) => event.preventDefault()}
           />
+          <span className="pointer-events-none absolute bottom-2 right-3 z-10 rounded bg-base-100/90 px-2 py-1 text-xs tabular-nums text-base-content/55 shadow-sm backdrop-blur-sm">{wordCountLabel}</span>
         </div>
-        <div className={`${mobileMode === "source" ? "hidden" : "block"} min-w-0 overflow-auto md:block`}>
-          <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-base-300 bg-base-100 px-3 py-2 text-xs font-medium text-base-content/55"><span>实时预览</span>{htmlErrors.length > 0 && <span className="text-error">HTML {htmlErrors.length} 项错误</span>}</div>
-          {htmlErrors.length > 0 && <div className="m-3 border border-error/35 bg-error/8 px-3 py-2 text-xs text-error" role="alert">{htmlErrors.map((error) => <p key={error}>{error}</p>)}</div>}
-          <article className="article-markdown prose max-w-none p-4 sm:p-6"><MarkdownRenderer content={fields.content} /></article>
+        <div className={`${mobileMode === "source" ? "hidden" : "flex"} relative min-w-0 flex-col overflow-hidden md:flex`}>
+          <div className="z-10 flex items-center justify-between gap-3 border-b border-base-300 bg-base-100 px-3 py-2 text-xs font-medium text-base-content/55"><span>实时预览</span>{htmlErrors.length > 0 && <span className="text-error">HTML {htmlErrors.length} 项错误</span>}</div>
+          <div className="min-h-0 grow overflow-auto pb-8">
+            {htmlErrors.length > 0 && <div className="m-3 border border-error/35 bg-error/8 px-3 py-2 text-xs text-error" role="alert">{htmlErrors.map((error) => <p key={error}>{error}</p>)}</div>}
+            <article className="article-markdown prose max-w-none p-4 sm:p-6"><MarkdownRenderer content={fields.content} /></article>
+          </div>
+          <span className="pointer-events-none absolute bottom-2 right-3 z-10 rounded bg-base-100/90 px-2 py-1 text-xs tabular-nums text-base-content/55 shadow-sm backdrop-blur-sm">{wordCountLabel}</span>
         </div>
       </section>
 
